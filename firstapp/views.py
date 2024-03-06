@@ -21,14 +21,14 @@ def HomePage(request):
 def SignupPage(request):
     error = False
     error1 = False
-    # profile_picture_url = None
-    if request.method=='POST':
-        uname=request.POST.get('username')
-        email=request.POST.get('email')
-        pass1=request.POST.get('password1')
-        pass2=request.POST.get('password2')
-        # profile_picture = request.FILES.get('profile_picture')
-        
+
+    if request.method == 'POST':
+        uname = request.POST.get('username')
+        email = request.POST.get('email')
+        pass1 = request.POST.get('password1')
+        pass2 = request.POST.get('password2')
+
+        print(uname, email, pass1, pass2)
 
         if len(pass1) >= 8 and len(pass1) <= 16 and len(pass2) >= 8 and len(pass2) <= 16:
             has_valid_length = True
@@ -44,17 +44,18 @@ def SignupPage(request):
             error = True  
 
         if pass1 == pass2 and not error:
-            my_user = User.objects.create_user(uname, email, pass1)
-            # if profile_picture:
-            #     profile = Profile.objects.create(user=my_user, image=profile_picture)
-            #     profile_picture_url = profile.image.url
-            my_user.save()
-            return redirect('uploadimage')
-        elif pass1 != pass2:
-             error1 = True
+            try:
+                my_user = User.objects.create_user(username=uname, email=email, password=pass1)
+                my_user.save()
+                return redirect('uploadimage')
+            except Exception as e:
+                print('error message', e)
         else:
-            error
-    return render(request,'signup.html' , {'error': error , 'error1': error1})
+            error = True
+
+    return render(request, 'signup.html', {'error': error, 'error1': error1})
+
+
     
 def LoginPage(request):
     error2 = False
@@ -73,17 +74,9 @@ def LoginPage(request):
 
 def LogoutPage(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        pass1 = request.POST.get('pass')
-        user=authenticate(request,username=username,password=pass1)
-        if user is not None:
-            login(request,user)
-            return redirect("home")
-        else:
-            error_message = True
-            return render(request, 'logout.html', {'error_message': error_message})
-    logout(request)
-    return render(request, 'login.html')
+        logout(request)
+        return redirect('login')
+    return render(request, 'logout.html')
 
 def services(request):
     servicedata = Services.objects.all()
@@ -96,7 +89,7 @@ def services(request):
         'fas fa-chart-pie',    
         'fab fa-asymmetrik',
         "fas fa-car",
-        # ''
+        ''
     ]
 
     if len(icon_classes) < len(servicedata):
