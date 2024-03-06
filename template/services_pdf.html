@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services PDF</title>
+    <link rel="stylesheet" href="static/pdf.css">
+</head>
+<body>
+        <h1 >{{service.service_icon}}</h1>
+        <p>{{service.service_des }}</p>
+        <p>{{service.service_title }}</p>
+</body>
+
+</html> 
+
+
+{% comment %} USE THIS CODE TO DOWNLOAD ALL SERVICES PDF IN A SINGLE PDF FILE {% endcomment %}
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Services Report</title>
+    <link rel="stylesheet" href="static/pdf.css">
+</head>
+<body>
+    <h1>Services Report</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Service Title</th>
+                <th>Description</th>
+                <th>Icon</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>{{ service.service_title }}</td>
+                <td>{{ service.service_des }}</td>
+                <td>{{ service.service_icon }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> {% endcomment %}
