@@ -89,13 +89,12 @@ def services(request):
     servicedata = Services.objects.all()
     default_icon_class = 'fas fa-question-circle'
     icon_classes = [
-        'fas fa-laptop-code', 
-        'fab fa-battle-net',   
-        'fab fa-artstation',   
-        'fab fa-500px',        
-        'fas fa-chart-pie',    
-        'fab fa-asymmetrik',
-        "fas fa-car",
+        'fas fa-futbol', 
+        'fas fa-table-tennis',   
+        'fas fa-volleyball-ball',   
+        'fas fa-chess-queen',        
+        'fas fa-basketball-ball',    
+        'fas fa-skating',
         # ''
     ]
 
