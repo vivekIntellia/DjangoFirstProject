@@ -72,16 +72,6 @@ def LoginPage(request):
     return render (request,'login.html')
 
 def LogoutPage(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        pass1 = request.POST.get('pass')
-        user=authenticate(request,username=username,password=pass1)
-        if user is not None:
-            login(request,user)
-            return redirect("home")
-        else:
-            error_message = True
-            return render(request, 'logout.html', {'error_message': error_message})
     logout(request)
     return render(request, 'login.html')
 
