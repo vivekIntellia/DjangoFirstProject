@@ -1,6 +1,5 @@
 import csv
 import io
-from PIL import Image
 import xlsxwriter
 from django.shortcuts import render , HttpResponse , redirect 
 from django.urls import reverse
@@ -11,7 +10,9 @@ from django.contrib.auth import authenticate , login , logout
 from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import JsonResponse
 
 @login_required(login_url='login')
 
@@ -27,8 +28,9 @@ def SignupPage(request):
         email = request.POST.get('email')
         pass1 = request.POST.get('password1')
         pass2 = request.POST.get('password2')
+        request.session['signup_email'] = email
+        request.session['username'] = uname
 
-        print(uname, email, pass1, pass2)
 
         if len(pass1) >= 8 and len(pass1) <= 16 and len(pass2) >= 8 and len(pass2) <= 16:
             has_valid_length = True
@@ -45,17 +47,83 @@ def SignupPage(request):
 
         if pass1 == pass2 and not error:
             my_user = User.objects.create_user(uname, email, pass1)
-            # if profile_picture:
-            #     profile = Profile.objects.create(user=my_user, image=profile_picture)
-            #     profile_picture_url = profile.image.url
             my_user.save()
-            return redirect('uploadimage')
+            return redirect('userdetails')
         elif pass1 != pass2:
              error1 = True
         else:
             error
     return render(request,'signup.html' , {'error': error , 'error1': error1})
+
+def UserDetails(request):
+    if request.method == 'POST':
+        sport = request.POST.get('sport')
+        school_exp = request.POST.get('school')
+        state_exp = request.POST.get('state')
+        national_exp = request.POST.get('national')
+        international_exp = request.POST.get('international')
+        print(sport , school_exp , state_exp , national_exp , international_exp)
+
+        request.session['user_details'] = {
+            'sport': sport,
+            'school_exp': school_exp,
+            'state_exp': state_exp,
+            'national_exp': national_exp,
+            'international_exp': international_exp
+        }
+        return redirect('approvalrequest')
+    return render(request , 'userdetails.html')
+
+def AdminApproval(request):
+    user_details = request.session.get('user_details')
+    return render(request , 'adminApproval.html' , {'user_details': user_details})
+
+def ApprovalRequest(request):
+    email = request.session.get('signup_email')
+    username = request.session.get('username')
+    if request.method == 'GET':
+        send_mail(
+        'Confirmation mail',
+        'This is the confirmation mail that you have received.Thank You for filing the form , we appreciate your interest in joning us for now just wait for the administration to approve your request. We will get to you soon ',
+        settings.EMAIL_HOST_USER,
+        [email],
+        )
+
+        admin_email = 'vivek.yadav2750@gmail.com'
+        user_details_page_url = request.build_absolute_uri(reverse('adminApproval'))
+        send_mail(
+            'New Approval Request',
+            f'A new approval request has been submitted by {username} having email {email}, Please review it at: {user_details_page_url}.',
+            settings.EMAIL_HOST_USER,
+            [admin_email],
+    )
+
+    return render(request , 'approvalrequest.html')
+
+def send_acceptance_email(request):
+    email = request.session.get('signup_email')
+    login_page_url = request.build_absolute_uri(reverse('login'))
+    send_mail(
+        'Update on Your request',
+        f'Your request has been accepted use this link to login to the website to access the services {login_page_url}',
+        settings.EMAIL_HOST_USER,
+        [email],
+        fail_silently=False,
+    )
     
+    return JsonResponse({'message': 'Acceptance email sent'})
+
+def send_rejection_email(request):
+    email = request.session.get('signup_email')
+    send_mail(
+        'Update on Your request',
+        f'We appreciate your interest in joining our organisation, but unfortunately your details does not match our required. You can reapply after 3 months.',
+        settings.EMAIL_HOST_USER,
+        [email],
+        fail_silently=False,
+    )
+    return JsonResponse({'message': 'Rejection email sent'})
+
 def LoginPage(request):
     error2 = False
     if request.method=='POST':
@@ -74,10 +142,6 @@ def LoginPage(request):
 def LogoutPage(request):
     logout(request)
     return render(request, 'login.html')
-    if request.method == 'POST':
-        logout(request)
-        return redirect('login')
-    return render(request, 'logout.html')
 
 def services(request):
     servicedata = Services.objects.all()

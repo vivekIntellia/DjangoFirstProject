@@ -5,8 +5,10 @@ from firstapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/' , include(views.about) , name='about'),
+    path('home/' , include(views.HomePage) , name='about'),
     path('', include(views.SignupPage) , name="Signuppage"),
+    path('userdetails/', include(views.UserDetails) , name="UserDetails"),
+    # path('approvalrequest/', include(views.ApprovalRequest) , name="ApprovalRequest"),
     path('login/', include(views.LoginPage) , name = "LoginPage"),
     path('logout/', include(views.LogoutPage) , name='logout'),
     # path('accounts/', include('django.contrib.auth.urls')),
