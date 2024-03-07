@@ -44,18 +44,17 @@ def SignupPage(request):
             error = True  
 
         if pass1 == pass2 and not error:
-            try:
-                my_user = User.objects.create_user(username=uname, email=email, password=pass1)
-                my_user.save()
-                return redirect('uploadimage')
-            except Exception as e:
-                print('error message', e)
+            my_user = User.objects.create_user(uname, email, pass1)
+            # if profile_picture:
+            #     profile = Profile.objects.create(user=my_user, image=profile_picture)
+            #     profile_picture_url = profile.image.url
+            my_user.save()
+            return redirect('uploadimage')
+        elif pass1 != pass2:
+             error1 = True
         else:
-            error = True
-
-    return render(request, 'signup.html', {'error': error, 'error1': error1})
-
-
+            error
+    return render(request,'signup.html' , {'error': error , 'error1': error1})
     
 def LoginPage(request):
     error2 = False
@@ -73,6 +72,8 @@ def LoginPage(request):
     return render (request,'login.html')
 
 def LogoutPage(request):
+    logout(request)
+    return render(request, 'login.html')
     if request.method == 'POST':
         logout(request)
         return redirect('login')
