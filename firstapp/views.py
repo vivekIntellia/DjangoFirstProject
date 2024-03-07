@@ -21,14 +21,14 @@ def HomePage(request):
 def SignupPage(request):
     error = False
     error1 = False
-    # profile_picture_url = None
-    if request.method=='POST':
-        uname=request.POST.get('username')
-        email=request.POST.get('email')
-        pass1=request.POST.get('password1')
-        pass2=request.POST.get('password2')
-        # profile_picture = request.FILES.get('profile_picture')
-        
+
+    if request.method == 'POST':
+        uname = request.POST.get('username')
+        email = request.POST.get('email')
+        pass1 = request.POST.get('password1')
+        pass2 = request.POST.get('password2')
+
+        print(uname, email, pass1, pass2)
 
         if len(pass1) >= 8 and len(pass1) <= 16 and len(pass2) >= 8 and len(pass2) <= 16:
             has_valid_length = True
@@ -74,6 +74,10 @@ def LoginPage(request):
 def LogoutPage(request):
     logout(request)
     return render(request, 'login.html')
+    if request.method == 'POST':
+        logout(request)
+        return redirect('login')
+    return render(request, 'logout.html')
 
 def services(request):
     servicedata = Services.objects.all()
