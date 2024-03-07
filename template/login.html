@@ -58,5 +58,13 @@
           hideErrorMessage();
       }
   </script>
+
+
+
+ {% if verification_message %}
+  <div class="alert alert-warning">
+      {{ verification_message }}
+  </div>
+{% endif %}
 </body>
 </html>
