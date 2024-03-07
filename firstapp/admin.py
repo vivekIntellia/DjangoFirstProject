@@ -1,10 +1,13 @@
 from django.contrib import admin
 from firstapp.models import firstapp
+from firstapp.models import *
 
 class firstappAdmin(admin.ModelAdmin):
         list_display = ('firstapp_icon' , 'firstapp_title' , 'firstapp_des')
 
 admin.site.register(firstapp, firstappAdmin)
+
+admin.site.register(UserProfile)
 # Register your models here.
 
 

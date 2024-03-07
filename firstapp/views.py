@@ -5,19 +5,25 @@ from django.shortcuts import render , HttpResponse , redirect
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from services.models import Services 
+from firstapp.models import UserProfile
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate , login , logout
 from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
+
+import uuid
 from django.conf import settings
+from django.contrib import messages
 from django.http import JsonResponse
+
 
 @login_required(login_url='login')
 
 def HomePage(request):
     return render(request, 'home.html')
+
 
 def SignupPage(request):
     error = False
@@ -43,9 +49,31 @@ def SignupPage(request):
         has_special_char = any(char in '@#$^&*' for char in pass1) and any(char in '@#$^&*' for char in pass2)
 
         if not (has_valid_length and has_lower_char and has_upper_char and has_digit and has_special_char):
-            error = True  
+            error = True
 
         if pass1 == pass2 and not error:
+
+            try:
+                # Create a new user
+                my_user = User.objects.create_user(username=uname, email=email, password=pass1)
+
+                # Generate a unique verification token
+                verification_token = str(uuid.uuid4())
+
+                # Create UserProfile object
+                profile_obj = UserProfile.objects.create(user=my_user, verification_token=verification_token)
+
+                # Send verification email
+                send_mail_after_registration(email, verification_token)
+
+                # Save UserProfile object
+                profile_obj.save()
+
+                messages.success(request, 'Account created successfully. Check your email for verification.')
+                return redirect('/token_send/')
+            except Exception as e:
+                print('error message', e)
+                error = True
             my_user = User.objects.create_user(uname, email, pass1)
             my_user.save()
             return redirect('userdetails')
@@ -110,7 +138,6 @@ def send_acceptance_email(request):
         [email],
         fail_silently=False,
     )
-    
     return JsonResponse({'message': 'Acceptance email sent'})
 
 def send_rejection_email(request):
@@ -124,20 +151,35 @@ def send_rejection_email(request):
     )
     return JsonResponse({'message': 'Rejection email sent'})
 
+
 def LoginPage(request):
     error2 = False
-    if request.method=='POST':
-        username=request.POST.get('username')
-        pass1=request.POST.get('pass')
-        user=authenticate(request,username=username,password=pass1)
+    verification_message = None
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        pass1 = request.POST.get('pass')
+        user = authenticate(request, username=username, password=pass1)
+
         if user is not None:
-            login(request,user)
-            return redirect("home")
+            try:
+                profile_obj = UserProfile.objects.get(user=user)
+                if profile_obj.email_verified:
+                    login(request, user)
+                    return redirect("home")
+                else:
+                    verification_message = 'Please verify your email before logging in.'
+            except UserProfile.DoesNotExist:
+                messages.error(request, 'User profile not found.')
+                return render(request, 'login.html', {'error2': error2, 'verification_message': verification_message})
+
         else:
             error2 = True
-            return render(request, 'login.html', {'error2': error2})
+            return render(request, 'login.html', {'error2': error2, 'verification_message': verification_message})
 
-    return render (request,'login.html')
+    return render(request, 'login.html', {'verification_message': verification_message})
+
+
 
 def LogoutPage(request):
     logout(request)
@@ -333,5 +375,36 @@ def calculator(request):
 #     return render(request,'UserForms.html',data)
 # Create your views here.
 
+
+def success(request):
+    return render(request,'success.html')
+def error_page(request):
+    return render(request,'error.html')
+
+def token_send(request):
+    return render(request,'token_send.html')
+
+def send_mail_after_registration(email, token):
+    subject = "Your account has been verified"
+    message = f"Hi, please click the following link to verify your account: http://127.0.0.1:8000/verify/{token}"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail(subject, message, email_from, recipient_list)
+
+def verify(request, verification_token):
+    try:
+        profile_obj = UserProfile.objects.filter(verification_token=verification_token).first()
+        if profile_obj:
+            profile_obj.email_verified = True
+            profile_obj.save()
+            messages.success(request, 'Your account has been verified')
+            return redirect(reverse('login'))
+        else:
+            messages.error(request, 'Invalid verification token')
+            return render(request, 'error.html')
+    except Exception as e:
+        print(e)
+        messages.error(request, 'An error occurred during verification')
+        return render(request, 'error.html')
 
 
