@@ -35,6 +35,8 @@ urlpatterns = [
     path('verify/<verification_token>', views.verify, name='verify'),
     path('error/', views.error_page, name='error'),
 
+
+
     # Include other paths as needed
 
     # path('upload/', views.upload_image, name='upload_image'),

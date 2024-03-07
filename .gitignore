@@ -1,8 +1,0 @@
-# Ignore files with a .pyc extension
-*.pyc
-
-# Ignore the __pycache__ directory
-__pycache__/
-
-# Ignore all files in the logs directory
-logs/*
