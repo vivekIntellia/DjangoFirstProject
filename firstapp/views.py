@@ -68,20 +68,49 @@ def SignupPage(request):
 
                 # Save UserProfile object
                 profile_obj.save()
-
-                messages.success(request, 'Account created successfully. Check your email for verification.')
-                return redirect('/token_send/')
+                return redirect('token_send')
+            
             except Exception as e:
                 print('error message', e)
                 error = True
-            my_user = User.objects.create_user(uname, email, pass1)
-            my_user.save()
             return redirect('userdetails')
+        
         elif pass1 != pass2:
              error1 = True
         else:
             error
     return render(request,'signup.html' , {'error': error , 'error1': error1})
+
+def success(request):
+    return render(request,'success.html')
+def error_page(request):
+    return render(request,'error.html')
+
+def token_send(request):
+    return render(request,'token_send.html')
+
+def send_mail_after_registration(email, token):
+    subject = "Your account has been verified"
+    message = f"Hi, please click the following link to verify your account: http://127.0.0.1:8000/verify/{token}"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail(subject, message, email_from, recipient_list)
+
+def verify(request, verification_token):
+    try:
+        profile_obj = UserProfile.objects.filter(verification_token=verification_token).first()
+        if profile_obj:
+            profile_obj.email_verified = True
+            profile_obj.save()
+            messages.success(request, 'Your account has been verified')
+            return redirect(reverse('login'))
+        else:
+            messages.error(request, 'Invalid verification token')
+            return render(request, 'error.html')
+    except Exception as e:
+        print(e)
+        messages.error(request, 'An error occurred during verification')
+        return render(request, 'error.html')
 
 def UserDetails(request):
     if request.method == 'POST':
@@ -117,7 +146,7 @@ def ApprovalRequest(request):
         [email],
         )
 
-        admin_email = 'vivek.yadav2750@gmail.com'
+        admin_email = 'vivekyadav2750@gmail.com'
         user_details_page_url = request.build_absolute_uri(reverse('adminApproval'))
         send_mail(
             'New Approval Request',
@@ -144,7 +173,7 @@ def send_rejection_email(request):
     email = request.session.get('signup_email')
     send_mail(
         'Update on Your request',
-        f'We appreciate your interest in joining our organisation, but unfortunately your details does not match our required. You can reapply after 3 months.',
+        f'We appreciate your interest in joining our organisation, but unfortunately your details does not match our requirement. You can reapply after 3 months.',
         settings.EMAIL_HOST_USER,
         [email],
         fail_silently=False,
@@ -376,35 +405,6 @@ def calculator(request):
 # Create your views here.
 
 
-def success(request):
-    return render(request,'success.html')
-def error_page(request):
-    return render(request,'error.html')
 
-def token_send(request):
-    return render(request,'token_send.html')
-
-def send_mail_after_registration(email, token):
-    subject = "Your account has been verified"
-    message = f"Hi, please click the following link to verify your account: http://127.0.0.1:8000/verify/{token}"
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [email]
-    send_mail(subject, message, email_from, recipient_list)
-
-def verify(request, verification_token):
-    try:
-        profile_obj = UserProfile.objects.filter(verification_token=verification_token).first()
-        if profile_obj:
-            profile_obj.email_verified = True
-            profile_obj.save()
-            messages.success(request, 'Your account has been verified')
-            return redirect(reverse('login'))
-        else:
-            messages.error(request, 'Invalid verification token')
-            return render(request, 'error.html')
-    except Exception as e:
-        print(e)
-        messages.error(request, 'An error occurred during verification')
-        return render(request, 'error.html')
 
 
