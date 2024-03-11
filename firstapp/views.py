@@ -5,7 +5,7 @@ from django.shortcuts import render , HttpResponse , redirect
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from services.models import Services 
-from firstapp.models import UserProfile
+from firstapp.models import UserProfile , UserDetail
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate , login , logout
 from django.contrib.auth.decorators import login_required
@@ -62,7 +62,12 @@ def SignupPage(request):
             except Exception as e:
                 print('error message', e)
                 error = True
-
+                return redirect('token_send')
+            
+            except Exception as e:
+                print('error message', e)
+                error = True
+            return redirect('userdetails')
         elif pass1 != pass2:
             error1 = True
         else:
@@ -102,28 +107,75 @@ def verify(request, verification_token):
         messages.error(request, 'An error occurred during verification')
         return render(request, 'error.html')
 
+def success(request):
+    return render(request,'success.html')
+def error_page(request):
+    return render(request,'error.html')
+
+def token_send(request):
+    return render(request,'token_send.html')
+
+def send_mail_after_registration(email, token):
+    subject = "Your account has been verified"
+    message = f"Hi, please click the following link to verify your account: http://127.0.0.1:8000/verify/{token}"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail(subject, message, email_from, recipient_list)
+
+def verify(request, verification_token):
+    try:
+        profile_obj = UserProfile.objects.filter(verification_token=verification_token).first()
+        if profile_obj:
+            profile_obj.email_verified = True
+            profile_obj.save()
+            messages.success(request, 'Your account has been verified')
+            return redirect(reverse('login'))
+        else:
+            messages.error(request, 'Invalid verification token')
+            return render(request, 'error.html')
+    except Exception as e:
+        print(e)
+        messages.error(request, 'An error occurred during verification')
+        return render(request, 'error.html')
+
 def UserDetails(request):
+    user_detail = None
     if request.method == 'POST':
         sport = request.POST.get('sport')
-        school_exp = request.POST.get('school')
-        state_exp = request.POST.get('state')
-        national_exp = request.POST.get('national')
-        international_exp = request.POST.get('international')
-        print(sport , school_exp , state_exp , national_exp , international_exp)
+        school_experience = request.POST.get('school')
+        state_experience = request.POST.get('state')
+        national_experience = request.POST.get('national')
+        international_experience = request.POST.get('international')
+        username = request.session.get('username')
 
-        request.session['user_details'] = {
-            'sport': sport,
-            'school_exp': school_exp,
-            'state_exp': state_exp,
-            'national_exp': national_exp,
-            'international_exp': international_exp
-        }
+        user = User.objects.get(username=username)
+
+        user_detail = UserDetail.objects.create(
+            user = user,
+            sport = sport,
+            school_experience = school_experience,
+            state_experience = state_experience,
+            national_experience = national_experience,
+            international_experience = international_experience
+        )
+
+        sport_label = user_detail.get_sport_label()
+        user_detail.sport = sport_label
+        user_detail.save() 
+
+        request.session['user_detail_id'] = user_detail.id
+
         return redirect('approvalrequest')
-    return render(request , 'userdetails.html')
+    return render(request , 'userdetails.html'  , {'user_detail': user_detail})
 
 def AdminApproval(request):
-    user_details = request.session.get('user_details')
-    return render(request , 'adminApproval.html' , {'user_details': user_details})
+    user_detail_id = request.session.get('user_detail_id')
+    if user_detail_id:
+        user_detail = UserDetail.objects.get(id=user_detail_id)
+    else:
+        user_detail = None
+    return render(request, 'adminApproval.html', {'user_detail': user_detail})
+
 
 def ApprovalRequest(request):
     email = request.session.get('signup_email')
@@ -254,8 +306,27 @@ def download_csv(request, service_id):
     except Services.DoesNotExist:
         return HttpResponse("Service not found", status=404)
     
+# USE THIS CODE TO GENERATE ALL THE SERVICES IN EXCEL FILE <a href="{% url 'generate_excel' %}" class="learn-more">Download EXCEL</a> USE THIS URL AND USE THIS PATH path('generate-excel/', views.generate_excel, name='generate_excel'),
+# def generate_excel(request , service_id):
+#     services = Services.objects.gte(id=service_id)
+#     output = io.BytesIO()
+#     workbook = xlsxwriter.Workbook(output)
+#     worksheet = workbook.add_worksheet()
+#     headers = ['Service Title', 'Description', 'Icon']
+#     for col, header in enumerate(headers):
+#         worksheet.write(0, col, header)
+#     for row, service in enumerate(services, start=1):
+#         worksheet.write(row, 0, service.service_title)
+#         worksheet.write(row, 1, service.service_des)
+#         worksheet.write(row, 2, service.service_icon)
+#     workbook.close()
+#     response = HttpResponse(output.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+#     response['Content-Disposition'] = 'attachment; filename="services_report.xlsx"'
 
-def generate_excel(request, service_id):
+#     return response
+
+
+def generate_excel(service_id):
     try:
         service = Services.objects.get(id=service_id)
     except Services.DoesNotExist:
@@ -308,3 +379,26 @@ def calculator(request):
     except:
         cal = 'Invalid opr......'
     return render( request , 'calculator.html' , data)
+    
+# def UserForm(request):
+#     fn = UserForms()
+#     finalans = 0
+#     data = {}
+#     try:
+#         if request.method=='post':
+#             n1 = int(request.POST['num1'])
+#             n2 = int(request.POST['num2'])
+#             finalans = n1+n2
+#             data = {
+#                 'control' : fn,
+#                 'output': finalans
+#             }
+#             url = "/about/?output={}".format(finalans)
+
+#             return redirect(url)
+#     except:
+#         pass
+
+#     return render(request,'UserForms.html',data)
+# Create your views here.
+
