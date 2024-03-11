@@ -12,11 +12,15 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
+from firstapp.models import PhoneOTP
 
 import uuid
 from django.conf import settings
 from django.contrib import messages
 from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from . helper import send_otp_to_phone
 
 
 @login_required(login_url='login')
@@ -379,26 +383,38 @@ def calculator(request):
     except:
         cal = 'Invalid opr......'
     return render( request , 'calculator.html' , data)
-    
-# def UserForm(request):
-#     fn = UserForms()
-#     finalans = 0
-#     data = {}
-#     try:
-#         if request.method=='post':
-#             n1 = int(request.POST['num1'])
-#             n2 = int(request.POST['num2'])
-#             finalans = n1+n2
-#             data = {
-#                 'control' : fn,
-#                 'output': finalans
-#             }
-#             url = "/about/?output={}".format(finalans)
 
-#             return redirect(url)
-#     except:
-#         pass
 
-#     return render(request,'UserForms.html',data)
-# Create your views here.
+# @api_view(['POST'])
+# def send_otp(request):
+#     data = request.data
+#     if data.get('phone_number') is None:
+#         return Response({'status': 400, 'message': 'key phone_number is required'})
+#     if data.get('password') is None:
+#         return Response({'status': 400, 'message': 'key password is required'})
+
+#     otp = send_otp_to_phone(data.get('phone_number'))
+
+#     if otp is not None:
+#         user = User.objects.create(phone_number=data.get('phone_number'), otp=otp)
+#         user.set_password(data.get('password')) 
+#         user.save()
+#         return Response({'status': 200, 'message': 'otp sent'})
+#     else:
+#         return Response({'status': 500, 'message': 'Failed to send OTP'})
+
+@api_view(['POST'])
+def send_otp(request):
+    data = request.data
+    if data.get('phone_number') is None:
+        return Response({'status': 400, 'message': 'Key phone_number is required'})
+
+    otp = send_otp_to_phone(data.get('phone_number'))
+
+    if otp is not None:
+        user = PhoneOTP.objects.create(phone_number=data.get('phone_number'), otp=otp)
+        return Response({'status': 200, 'message': 'OTP sent'})
+    else:
+        return Response({'status': 500, 'message': 'Failed to send OTP'})
+
 

@@ -25,6 +25,7 @@ urlpatterns = [
     path('send_acceptance_email/', views.send_acceptance_email, name='send_acceptance_email'),
     path('send_rejection_email/', views.send_rejection_email, name='send_rejection_email'),
     path('userdetails/',views.UserDetails,name='userdetails'),
+    path('send_otp/',views.send_otp),
 ]
 
 

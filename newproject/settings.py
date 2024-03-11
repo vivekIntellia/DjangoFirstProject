@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'services',
-    'firstapp'
+    'firstapp',
+    'rest_framework',
 ]
 
 LOGIN_URL = '/accounts/login/'

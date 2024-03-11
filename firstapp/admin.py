@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile, UserDetail
+from .models import UserProfile, UserDetail ,PhoneOTP
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
@@ -24,4 +24,6 @@ class UserDetailAdmin(admin.ModelAdmin):
     def formatted_international_experience(self, obj):
         return f"{obj.international_experience} Years"
     formatted_international_experience.short_description = 'International Experience'
+admin.site.register(UserProfile)
+admin.site.register(PhoneOTP)
 
