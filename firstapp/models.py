@@ -3,10 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 
 
-class firstapp(models.Model):
-    firstapp_icon = models.CharField(max_length=50)
-    firstapp_title = models.CharField(max_length=50)
-    firstapp_des = models.TextField()
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
