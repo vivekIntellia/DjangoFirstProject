@@ -5,7 +5,7 @@ from django.shortcuts import render , HttpResponse , redirect
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from services.models import Services 
-from firstapp.models import UserProfile
+from firstapp.models import UserProfile , UserDetail
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate , login , logout
 from django.contrib.auth.decorators import login_required
@@ -113,27 +113,43 @@ def verify(request, verification_token):
         return render(request, 'error.html')
 
 def UserDetails(request):
+    user_detail = None
     if request.method == 'POST':
         sport = request.POST.get('sport')
-        school_exp = request.POST.get('school')
-        state_exp = request.POST.get('state')
-        national_exp = request.POST.get('national')
-        international_exp = request.POST.get('international')
-        print(sport , school_exp , state_exp , national_exp , international_exp)
+        school_experience = request.POST.get('school')
+        state_experience = request.POST.get('state')
+        national_experience = request.POST.get('national')
+        international_experience = request.POST.get('international')
+        username = request.session.get('username')
 
-        request.session['user_details'] = {
-            'sport': sport,
-            'school_exp': school_exp,
-            'state_exp': state_exp,
-            'national_exp': national_exp,
-            'international_exp': international_exp
-        }
+        user = User.objects.get(username=username)
+
+        user_detail = UserDetail.objects.create(
+            user = user,
+            sport = sport,
+            school_experience = school_experience,
+            state_experience = state_experience,
+            national_experience = national_experience,
+            international_experience = international_experience
+        )
+
+        sport_label = user_detail.get_sport_label()
+        user_detail.sport = sport_label
+        user_detail.save() 
+
+        request.session['user_detail_id'] = user_detail.id
+
         return redirect('approvalrequest')
-    return render(request , 'userdetails.html')
+    return render(request , 'userdetails.html'  , {'user_detail': user_detail})
 
 def AdminApproval(request):
-    user_details = request.session.get('user_details')
-    return render(request , 'adminApproval.html' , {'user_details': user_details})
+    user_detail_id = request.session.get('user_detail_id')
+    if user_detail_id:
+        user_detail = UserDetail.objects.get(id=user_detail_id)
+    else:
+        user_detail = None
+    return render(request, 'adminApproval.html', {'user_detail': user_detail})
+
 
 def ApprovalRequest(request):
     email = request.session.get('signup_email')
@@ -316,7 +332,7 @@ def download_csv(request, service_id):
 #     return response
 
 
-def generate_excel(request, service_id):
+def generate_excel(service_id):
     try:
         service = Services.objects.get(id=service_id)
     except Services.DoesNotExist:

@@ -8,4 +8,4 @@ class ServiceAdmin(admin.ModelAdmin):
 admin.site.register(Services, ServiceAdmin)
 
 # Register CustomUser with UserAdmin
-# admin.site.register(Profile)
+
