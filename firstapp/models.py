@@ -2,13 +2,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from .manager import UserManager
-<<<<<<< Updated upstream
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
 from django.utils import timezone
-=======
->>>>>>> Stashed changes
 
 
 
@@ -49,12 +46,9 @@ class UserProfile(models.Model):
 # models.py
 # models.py
 
-<<<<<<< Updated upstream
-=======
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
 from django.utils import timezone
->>>>>>> Stashed changes
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, **extra_fields):
@@ -95,11 +89,8 @@ class PhoneOTP(AbstractBaseUser, PermissionsMixin):
     user_permissions = models.ManyToManyField('auth.Permission', related_name='phoneotp_user_permissions', blank=True)
 
 
-<<<<<<< Updated upstream
 
     
-=======
->>>>>>> Stashed changes
 
 
 
