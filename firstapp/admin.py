@@ -4,7 +4,7 @@ from .models import UserProfile, UserDetail
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     pass
-
+  
 @admin.register(UserDetail)
 class UserDetailAdmin(admin.ModelAdmin):
     list_display = ['user', 'sport', 'formatted_school_experience', 'formatted_state_experience', 'formatted_national_experience', 'formatted_international_experience']
@@ -24,3 +24,4 @@ class UserDetailAdmin(admin.ModelAdmin):
     def formatted_international_experience(self, obj):
         return f"{obj.international_experience} Years"
     formatted_international_experience.short_description = 'International Experience'
+

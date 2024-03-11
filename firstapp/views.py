@@ -28,7 +28,6 @@ def HomePage(request):
 def SignupPage(request):
     error = False
     error1 = False
-
     if request.method == 'POST':
         uname = request.POST.get('username')
         email = request.POST.get('email')
@@ -36,7 +35,6 @@ def SignupPage(request):
         pass2 = request.POST.get('password2')
         request.session['signup_email'] = email
         request.session['username'] = uname
-
 
         if len(pass1) >= 8 and len(pass1) <= 16 and len(pass2) >= 8 and len(pass2) <= 16:
             has_valid_length = True
@@ -54,32 +52,60 @@ def SignupPage(request):
         if pass1 == pass2 and not error:
 
             try:
-                # Create a new user
                 my_user = User.objects.create_user(username=uname, email=email, password=pass1)
-
-                # Generate a unique verification token
                 verification_token = str(uuid.uuid4())
-
-                # Create UserProfile object
                 profile_obj = UserProfile.objects.create(user=my_user, verification_token=verification_token)
-
-                # Send verification email
                 send_mail_after_registration(email, verification_token)
-
-                # Save UserProfile object
                 profile_obj.save()
+                print('Redirecting to token_send')
+                return redirect('token_send')
+            except Exception as e:
+                print('error message', e)
+                error = True
                 return redirect('token_send')
             
             except Exception as e:
                 print('error message', e)
                 error = True
             return redirect('userdetails')
-        
         elif pass1 != pass2:
-             error1 = True
+            error1 = True
         else:
-            error
-    return render(request,'signup.html' , {'error': error , 'error1': error1})
+            error = True
+
+    return render(request, 'signup.html', {'error': error, 'error1': error1})
+
+def success(request):
+    return render(request,'success.html')
+def error_page(request):
+    return render(request,'error.html')
+
+def token_send(request):
+    return render(request,'token_send.html')
+
+def send_mail_after_registration(email, token):
+    subject = "Your account has been verified"
+    message = f"Hi, please click the following link to verify your account: http://127.0.0.1:8000/verify/{token}"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail(subject, message, email_from, recipient_list)
+    
+def verify(request, verification_token):
+    try:
+        profile_obj = UserProfile.objects.filter(verification_token=verification_token).first()
+        if profile_obj:
+            profile_obj.email_verified = True
+            profile_obj.save()
+            messages.success(request, 'Your account has been verified')
+            # Redirect to 'userdetails' instead of 'error'
+            return redirect(reverse('userdetails'))
+        else:
+            messages.error(request, 'Invalid verification token')
+            return render(request, 'error.html')
+    except Exception as e:
+        print(e)
+        messages.error(request, 'An error occurred during verification')
+        return render(request, 'error.html')
 
 def success(request):
     return render(request,'success.html')
@@ -224,8 +250,6 @@ def LoginPage(request):
 
     return render(request, 'login.html', {'verification_message': verification_message})
 
-
-
 def LogoutPage(request):
     logout(request)
     return render(request, 'login.html')
@@ -268,35 +292,6 @@ def generate_pdf(request, service_id):
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
-# USE THIS CODE TO DOWNLOAD ALL SERVICES PDF IN A SINGLE PDF FILE 
-# UPDATE THE URL WITH THIS <a href="{% url 'generate_pdf'%}" class="learn-more">Download PDF</a>
-# ALSO UPDATE THE PATH WITH THIS path('generate-pdf', views.generate_pdf, name='generate_pdf'),
-# def generate_pdf(request):
-#     services = Services.objects.all()
-#     template_path = 'services_pdf.html'
-#     context = {'services': services}
-#     template = get_template(template_path)
-#     html = template.render(context)
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = 'attachment; filename="services_pdf.pdf"'
-#     pisa_status = pisa.CreatePDF(html, dest=response)
-#     if pisa_status.err:
-#         return HttpResponse('PDF generation error', status=500)
-
-#     return response
-
-### TO DOWNLOAD ALL SERVICES DATA IN SINGLE FILE [USE THIS IN THE SERVCIE. HRML FILE <a href="{% url 'download_csv' %}" class="learn-more">Download CSV</a>#####
-# def download_csv(request):
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename="services.csv"'
-#     writer = csv.writer(response)
-#     writer.writerow(['Service Title', 'Description', 'Link'])
-#     services = Services.objects.all()
-#     for service in services:
-#         writer.writerow([service.service_icon, service.service_des, service.service_title])
-
-#     return response
-
 def download_csv(request, service_id):
     try:
         service = Services.objects.get(id=service_id)
@@ -311,7 +306,6 @@ def download_csv(request, service_id):
     except Services.DoesNotExist:
         return HttpResponse("Service not found", status=404)
     
-
 # USE THIS CODE TO GENERATE ALL THE SERVICES IN EXCEL FILE <a href="{% url 'generate_excel' %}" class="learn-more">Download EXCEL</a> USE THIS URL AND USE THIS PATH path('generate-excel/', views.generate_excel, name='generate_excel'),
 # def generate_excel(request , service_id):
 #     services = Services.objects.gte(id=service_id)
@@ -374,17 +368,7 @@ def calculator(request):
             if request.POST.get('num1') == "":
                 return render( request , 'calculator.html' , {'error' : True})
             n1 = eval(request.POST.get('num1'))
-            # n2 = int(request.POST.get('num2'))
-            # result = request.POST.get('opr')
-            # for op in request.POST.get('opr'):
-            #     if op == '+':
-            #         cal = n1+n2
-            #     if op == '-':
-            #         cal = n1-n2
-            #     if op == '*':
-            #         cal = n1*n2
-            #     if op == '/':
-            #         cal = n1/n2
+
             if n1 % 2 == 0 and n1 != 1:
                 cal = 'Even'
             else:
@@ -392,12 +376,10 @@ def calculator(request):
             data = {
                 'result' : cal
             }
-            # print(cal)
     except:
         cal = 'Invalid opr......'
-    # print(cal)
     return render( request , 'calculator.html' , data)
-
+    
 # def UserForm(request):
 #     fn = UserForms()
 #     finalans = 0
@@ -419,8 +401,4 @@ def calculator(request):
 
 #     return render(request,'UserForms.html',data)
 # Create your views here.
-
-
-
-
 
