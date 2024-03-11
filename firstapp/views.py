@@ -63,11 +63,6 @@ def SignupPage(request):
                 print('error message', e)
                 error = True
                 return redirect('token_send')
-            
-            except Exception as e:
-                print('error message', e)
-                error = True
-            return redirect('userdetails')
         elif pass1 != pass2:
             error1 = True
         else:
@@ -99,37 +94,6 @@ def verify(request, verification_token):
             messages.success(request, 'Your account has been verified')
             # Redirect to 'userdetails' instead of 'error'
             return redirect(reverse('userdetails'))
-        else:
-            messages.error(request, 'Invalid verification token')
-            return render(request, 'error.html')
-    except Exception as e:
-        print(e)
-        messages.error(request, 'An error occurred during verification')
-        return render(request, 'error.html')
-
-def success(request):
-    return render(request,'success.html')
-def error_page(request):
-    return render(request,'error.html')
-
-def token_send(request):
-    return render(request,'token_send.html')
-
-def send_mail_after_registration(email, token):
-    subject = "Your account has been verified"
-    message = f"Hi, please click the following link to verify your account: http://127.0.0.1:8000/verify/{token}"
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [email]
-    send_mail(subject, message, email_from, recipient_list)
-
-def verify(request, verification_token):
-    try:
-        profile_obj = UserProfile.objects.filter(verification_token=verification_token).first()
-        if profile_obj:
-            profile_obj.email_verified = True
-            profile_obj.save()
-            messages.success(request, 'Your account has been verified')
-            return redirect(reverse('login'))
         else:
             messages.error(request, 'Invalid verification token')
             return render(request, 'error.html')
