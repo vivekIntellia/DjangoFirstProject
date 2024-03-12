@@ -1,7 +1,7 @@
 import csv
 import io
 import xlsxwriter
-from django.shortcuts import render , HttpResponse , redirect 
+from django.shortcuts import render , HttpResponse , redirect ,get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from services.models import Services 
@@ -12,8 +12,8 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
-from firstapp.models import PhoneOTP
 
+import random
 import uuid
 from django.conf import settings
 from django.contrib import messages
@@ -23,10 +23,21 @@ from rest_framework.response import Response
 from . helper import send_otp_to_phone
 
 
+from .form import UserProfileForm
+from .models import Profile_picture
+
+
+
 @login_required(login_url='login')
 
 def HomePage(request):
-    return render(request, 'home.html')
+    user = request.user
+    try:
+        profile_picture = Profile_picture.objects.get(user=user)
+        context = {'profile_picture': profile_picture}
+    except Profile_picture.DoesNotExist:
+        context = {'no_profile_picture': True}
+    return render(request, 'home.html',context)
 
 
 def SignupPage(request):
@@ -385,36 +396,44 @@ def calculator(request):
     return render( request , 'calculator.html' , data)
 
 
-# @api_view(['POST'])
-# def send_otp(request):
-#     data = request.data
-#     if data.get('phone_number') is None:
-#         return Response({'status': 400, 'message': 'key phone_number is required'})
-#     if data.get('password') is None:
-#         return Response({'status': 400, 'message': 'key password is required'})
+def upload_profile_image(request):
+    user = request.user
+    try:
+        existing_profile_picture = Profile_picture.objects.get(user=user)
+    except Profile_picture.DoesNotExist:
+        existing_profile_picture = None
 
-#     otp = send_otp_to_phone(data.get('phone_number'))
-
-#     if otp is not None:
-#         user = User.objects.create(phone_number=data.get('phone_number'), otp=otp)
-#         user.set_password(data.get('password')) 
-#         user.save()
-#         return Response({'status': 200, 'message': 'otp sent'})
-#     else:
-#         return Response({'status': 500, 'message': 'Failed to send OTP'})
-
-@api_view(['POST'])
-def send_otp(request):
-    data = request.data
-    if data.get('phone_number') is None:
-        return Response({'status': 400, 'message': 'Key phone_number is required'})
-
-    otp = send_otp_to_phone(data.get('phone_number'))
-
-    if otp is not None:
-        user = PhoneOTP.objects.create(phone_number=data.get('phone_number'), otp=otp)
-        return Response({'status': 200, 'message': 'OTP sent'})
+    if request.method == 'POST':
+        form23 = UserProfileForm(request.POST, request.FILES, instance=existing_profile_picture)
+        if form23.is_valid():
+            profile_picture = form23.save(commit=False)
+            profile_picture.user = user
+            profile_picture.save()
+            # print(profile_picture.profile_picture.url)
+            return redirect('home')
     else:
-        return Response({'status': 500, 'message': 'Failed to send OTP'})
+        form23 = UserProfileForm(instance=existing_profile_picture)
+
+    return render(request, 'upload_profile_image.html', {'form23': form23})
+
+
+def display_services(request):
+  
+    servicedata = Services.objects.all()
+
+    
+
+    return render(request, 'services_table.html', {'servicedata': servicedata})
+
+
+
+def navbar(request):
+    user = request.user
+    try:
+        profile_picture = Profile_picture.objects.get(user=user)
+        context = {'profile_picture': profile_picture}
+    except Profile_picture.DoesNotExist:
+        context = {'no_profile_picture': True}
+    return render(request,'navbar.html',context)
 
 

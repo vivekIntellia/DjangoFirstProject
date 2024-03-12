@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from firstapp import views
+
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -25,7 +26,15 @@ urlpatterns = [
     path('send_acceptance_email/', views.send_acceptance_email, name='send_acceptance_email'),
     path('send_rejection_email/', views.send_rejection_email, name='send_rejection_email'),
     path('userdetails/',views.UserDetails,name='userdetails'),
-    path('send_otp/',views.send_otp),
+    path('upload_profile_image/',views.upload_profile_image, name='upload_profile_image'),
+    path('auth/', include('social_django.urls', namespace='social')),
+    path('display_services/',views.display_services,name='display_services'),
+    path('navbar/',views.navbar,name='navbar'),
+    # path('display_profile_picture/', views.display_profile_picture, name='display_profile_picture'),
 ]
+
+    
+
+
 
 

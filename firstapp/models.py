@@ -1,13 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
-from .manager import UserManager
-
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.db import models
-from django.utils import timezone
-
-
 
 
 class UserProfile(models.Model):
@@ -19,85 +12,6 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
-    
-
-# class PhoneOTP(AbstractUser):
-#     phone_number = models.CharField(max_length=15, unique=True)
-#     otp = models.CharField(max_length=6)
-#     is_verified = models.BooleanField(default=False)
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     USERNAME_FIELD = 'phone_number'
-#     REQUIRED_FIELDS = []
-#     objects = UserManager()
-
-#     def __str__(self):
-#         return f"{self.username} - {self.phone_number}"
-
-#     # Provide unique related_names for the conflicting relationships
-#     groups = models.ManyToManyField('auth.Group', related_name='phoneotp_groups', blank=True)
-#     user_permissions = models.ManyToManyField('auth.Permission', related_name='phoneotp_user_permissions', blank=True)
-
-#     class Meta:
-#         # You can keep this if needed
-#         unique_together = ('phone_number', 'username')
-    
-
-# models.py
-# models.py
-
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.db import models
-from django.utils import timezone
-
-class CustomUserManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, **extra_fields):
-        if not phone_number:
-            raise ValueError('The Phone number field must be set')
-        user = self.model(phone_number=phone_number, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, phone_number, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self.create_user(phone_number, password, **extra_fields)
-
-class PhoneOTP(AbstractBaseUser, PermissionsMixin):
-    phone_number = models.CharField(max_length=15, unique=True)
-    otp = models.CharField(max_length=6)
-    is_verified = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = []
-
-    objects = CustomUserManager()
-
-    def __str__(self):
-        return f"{self.phone_number}"
-
-    # Provide unique related_names for the conflicting relationships
-    groups = models.ManyToManyField('auth.Group', related_name='phoneotp_groups', blank=True)
-    user_permissions = models.ManyToManyField('auth.Permission', related_name='phoneotp_user_permissions', blank=True)
-
-
-
-    
-
-
-
-
-
-
-
 
 class UserDetail(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -118,5 +32,14 @@ class UserDetail(models.Model):
         }
         return sport_labels.get(self.sport, "Unknown")
     
+    def __str__(self):
+        return self.user.username
+    
+# models.py
+class Profile_picture(models.Model):
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(upload_to='profile_pics/', default='default_profile_picture.jpg')
+
     def __str__(self):
         return self.user.username

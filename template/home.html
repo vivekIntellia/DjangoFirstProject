@@ -42,6 +42,7 @@
             class="block mt-4 font-semibold max-w-3xl hidden md:ml-6 lg:inline hover:text-gray-600 md:mt-0">About
             Us</a>
           <a href="#" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0 menu_item">Resources</a>
+          <a href="{% url 'display_services' %}" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0 menu_item">Our Experties</a>
           <a href="#" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0">FAQs</a>
           <a href="/services" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0">Services</a>
           <a href="/thankyou"
@@ -50,22 +51,20 @@
           <a href="{% url 'logout' %}"
             class="block mt-3 bg-blue-500 hover:bg-blue-700 px-6 py-2 rounded text-white font-semibold md:ml-6 md:mt-0">Logout</a>
           <div>
-            {% comment %} <form action="" method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-              <div class="profile-container">
-                <img src="default_profile_picture.jpg" alt="Profile Picture" class="profile-image" id="profileImage">
-                <input type="file" id="profileInput" accept=".jpg, .jpeg, .png" style="display:none;">
-                <button class="upload-btn" onclick="document.getElementById('profileInput').click();">Upload</button>
-              </div> {% endcomment %}
-              {% comment %} {% if profile_picture_url %} {% endcomment %}
+       
               <span class="dot">
-                {% if profile %}
-                <img src="#" class="w3-circle circle-image" alt="Profile Picture">
-                {% else %}
+                {% if profile_picture %}
+                <img src="{{ profile_picture.profile_picture.url }}" class="w3-circle circle-image" alt="Profile Picture">
+              {% else %}
                 <p>No profile picture uploaded yet.</p>
-                {% endif %}
+                <a href="{% url 'upload_profile_image' %}" class="btn btn-primary mt-2">Upload Image</a>
+              {% endif %}
+
+              
+            
+           
               </span>
-              {% comment %} {% endif %} {% endcomment %}
+              
             </form>
           </div>
         </div>
