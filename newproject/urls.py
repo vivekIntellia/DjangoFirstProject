@@ -6,8 +6,6 @@ from firstapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('', views.SignupPage, name='signup'),
+    path('', views.SignupPage, name='signup'),
     path('', include('firstapp.urls')),  # Include the app's URLs
-]
-
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

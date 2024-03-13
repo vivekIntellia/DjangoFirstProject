@@ -1,7 +1,7 @@
 import csv
 import io
 import xlsxwriter
-from django.shortcuts import render , HttpResponse , redirect 
+from django.shortcuts import render , HttpResponse , redirect ,get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from services.models import Services 
@@ -13,16 +13,31 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
 
+import random
 import uuid
 from django.conf import settings
 from django.contrib import messages
 from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from . helper import send_otp_to_phone
+
+
+from .form import UserProfileForm
+from .models import Profile_picture
+
 
 
 @login_required(login_url='login')
 
 def HomePage(request):
-    return render(request, 'home.html')
+    user = request.user
+    try:
+        profile_picture = Profile_picture.objects.get(user=user)
+        context = {'profile_picture': profile_picture}
+    except Profile_picture.DoesNotExist:
+        context = {'no_profile_picture': True}
+    return render(request, 'home.html',context)
 
 
 def SignupPage(request):
@@ -343,26 +358,46 @@ def calculator(request):
     except:
         cal = 'Invalid opr......'
     return render( request , 'calculator.html' , data)
+
+
+def upload_profile_image(request):
+    user = request.user
+    try:
+        existing_profile_picture = Profile_picture.objects.get(user=user)
+    except Profile_picture.DoesNotExist:
+        existing_profile_picture = None
+
+    if request.method == 'POST':
+        form23 = UserProfileForm(request.POST, request.FILES, instance=existing_profile_picture)
+        if form23.is_valid():
+            profile_picture = form23.save(commit=False)
+            profile_picture.user = user
+            profile_picture.save()
+            # print(profile_picture.profile_picture.url)
+            return redirect('home')
+    else:
+        form23 = UserProfileForm(instance=existing_profile_picture)
+
+    return render(request, 'upload_profile_image.html', {'form23': form23})
+
+
+def display_services(request):
+  
+    servicedata = Services.objects.all()
+
     
-# def UserForm(request):
-#     fn = UserForms()
-#     finalans = 0
-#     data = {}
-#     try:
-#         if request.method=='post':
-#             n1 = int(request.POST['num1'])
-#             n2 = int(request.POST['num2'])
-#             finalans = n1+n2
-#             data = {
-#                 'control' : fn,
-#                 'output': finalans
-#             }
-#             url = "/about/?output={}".format(finalans)
 
-#             return redirect(url)
-#     except:
-#         pass
+    return render(request, 'services_table.html', {'servicedata': servicedata})
 
-#     return render(request,'UserForms.html',data)
-# Create your views here.
+
+
+def navbar(request):
+    user = request.user
+    try:
+        profile_picture = Profile_picture.objects.get(user=user)
+        context = {'profile_picture': profile_picture}
+    except Profile_picture.DoesNotExist:
+        context = {'no_profile_picture': True}
+    return render(request,'navbar.html',context)
+
 
