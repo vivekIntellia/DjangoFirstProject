@@ -3,7 +3,6 @@ import io
 import xlsxwriter
 from django.shortcuts import render , HttpResponse , redirect ,get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponseRedirect
 from services.models import Services 
 from firstapp.models import UserProfile , UserDetail
 from django.contrib.auth.models import User
@@ -12,7 +11,6 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
-
 import random
 import uuid
 from django.conf import settings
@@ -21,15 +19,12 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from . helper import send_otp_to_phone
-
-
 from .form import UserProfileForm
 from .models import Profile_picture
 
 
 
 @login_required(login_url='login')
-
 def HomePage(request):
     user = request.user
     try:
@@ -38,7 +33,6 @@ def HomePage(request):
     except Profile_picture.DoesNotExist:
         context = {'no_profile_picture': True}
     return render(request, 'home.html',context)
-
 
 def SignupPage(request):
     error = False
@@ -143,18 +137,27 @@ def UserDetails(request):
         user_detail.save() 
 
         request.session['user_detail_id'] = user_detail.id
-
         return redirect('approvalrequest')
     return render(request , 'userdetails.html'  , {'user_detail': user_detail})
 
-def AdminApproval(request):
-    user_detail_id = request.session.get('user_detail_id')
-    if user_detail_id:
-        user_detail = UserDetail.objects.get(id=user_detail_id)
+def adminApproval(request):
+    if request.method == 'POST':
+        user_detail_id = request.POST.get('user_detail_id')
+        note = request.POST.get('note') 
+        if user_detail_id and note:
+            user_detail = UserDetail.objects.get(id=user_detail_id)
+            user_detail.note = note 
+            user_detail.save()
+            return redirect('adminApproval') 
+        else:
+            return HttpResponse('User detail ID and note are required')
     else:
-        user_detail = None
-    return render(request, 'adminApproval.html', {'user_detail': user_detail})
-
+        user_detail_id = request.session.get('user_detail_id')
+        if user_detail_id:
+            user_detail = UserDetail.objects.get(id=user_detail_id)
+        else:
+            user_detail = None
+        return render(request, 'adminApproval.html', {'user_detail': user_detail})
 
 def ApprovalRequest(request):
     email = request.session.get('signup_email')
@@ -178,30 +181,49 @@ def ApprovalRequest(request):
 
     return render(request , 'approvalrequest.html')
 
-def send_acceptance_email(request):
-    email = request.session.get('signup_email')
+def send_acceptance_email(request, user_detail_id):
+    user_detail = UserDetail.objects.get(pk=user_detail_id)
+    user_detail.status = 'Approved'
+    user_detail.save()
+
+    email = user_detail.user.email
     login_page_url = request.build_absolute_uri(reverse('login'))
     send_mail(
         'Update on Your request',
-        f'Your request has been accepted use this link to login to the website to access the services {login_page_url}',
+        f'Your request has been accepted. Use this link to login to the website to access the services: {login_page_url}',
         settings.EMAIL_HOST_USER,
         [email],
         fail_silently=False,
     )
     return JsonResponse({'message': 'Acceptance email sent'})
 
-def send_rejection_email(request):
-    email = request.session.get('signup_email')
+
+def send_rejection_email(request, user_detail_id):
+    user_detail = UserDetail.objects.get(pk=user_detail_id)
+    user_detail.status = 'Rejected'
+    user_detail.save()
+
+    email = user_detail.user.email
     send_mail(
         'Update on Your request',
-        f'We appreciate your interest in joining our organisation, but unfortunately your details does not match our requirement. You can reapply after 3 months.',
+        'We appreciate your interest in joining our organization, but unfortunately, your details do not match our requirements. You can reapply after 3 months.',
         settings.EMAIL_HOST_USER,
         [email],
         fail_silently=False,
     )
     return JsonResponse({'message': 'Rejection email sent'})
 
+def rejected(request):
+    user_detail_id = request.session.get('user_detail_id')
+    if user_detail_id:
+        user_detail = UserDetail.objects.get(id=user_detail_id)
+        note = user_detail.note  
+    else:
+        user_detail = None
+        note = None
+    return render(request, 'rejected.html', {'note': note})
 
+@login_required(login_url='login')
 def LoginPage(request):
     error2 = False
     verification_message = None
@@ -229,10 +251,12 @@ def LoginPage(request):
 
     return render(request, 'login.html', {'verification_message': verification_message})
 
+
 def LogoutPage(request):
     logout(request)
-    return render(request, 'login.html')
+    return redirect('login')
 
+@login_required(login_url='login')
 def services(request):
     servicedata = Services.objects.all()
     default_icon_class = 'fas fa-question-circle'
@@ -304,7 +328,6 @@ def download_csv(request, service_id):
 
 #     return response
 
-
 def generate_excel(service_id):
     try:
         service = Services.objects.get(id=service_id)
@@ -328,38 +351,6 @@ def generate_excel(service_id):
 def thankyou(request):
     return render( request , 'thankyou.html')
 
-def form(request):
-    try:
-        name = request.GET['name']
-        signupemail = request.GET['signupemail']
-        signuppassword = request.GET['signuppassword']
-        confirmpassword = request.GET['signuppassword']
-        request.save()
-        print(name,signupemail,signuppassword,confirmpassword)
-    except:
-        pass
-    return render( request , 'form.html')
-
-def calculator(request):
-    data = {}
-    try:
-        if request.method == "POST":
-            if request.POST.get('num1') == "":
-                return render( request , 'calculator.html' , {'error' : True})
-            n1 = eval(request.POST.get('num1'))
-
-            if n1 % 2 == 0 and n1 != 1:
-                cal = 'Even'
-            else:
-                cal = 'Odd'
-            data = {
-                'result' : cal
-            }
-    except:
-        cal = 'Invalid opr......'
-    return render( request , 'calculator.html' , data)
-
-
 def upload_profile_image(request):
     user = request.user
     try:
@@ -382,14 +373,8 @@ def upload_profile_image(request):
 
 
 def display_services(request):
-  
     servicedata = Services.objects.all()
-
-    
-
     return render(request, 'services_table.html', {'servicedata': servicedata})
-
-
 
 def navbar(request):
     user = request.user
@@ -399,5 +384,6 @@ def navbar(request):
     except Profile_picture.DoesNotExist:
         context = {'no_profile_picture': True}
     return render(request,'navbar.html',context)
+
 
 
