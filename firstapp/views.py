@@ -4,7 +4,7 @@ import xlsxwriter
 from django.shortcuts import render , HttpResponse , redirect ,get_object_or_404
 from django.urls import reverse
 from services.models import Services 
-from firstapp.models import UserProfile , UserDetail
+from .models import Profile_picture , UserDetail , UserProfile 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate , login , logout
 from django.contrib.auth.decorators import login_required
@@ -20,9 +20,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from . helper import send_otp_to_phone
 from .form import UserProfileForm
-from .models import Profile_picture
-
-
 
 @login_required(login_url='login')
 def HomePage(request):
