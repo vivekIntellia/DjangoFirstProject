@@ -42,7 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'services',
-    'firstapp'
+    'firstapp',
+    'rest_framework',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    # 'allauth_twillio',
+    'social_django',
 ]
 
 LOGIN_URL = '/accounts/login/'
@@ -55,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'newproject.urls'
@@ -147,4 +156,32 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "ayushijain.jain12345@gmail.com"
 EMAIL_HOST_PASSWORD = "psfb jcsa tltg yrnh"
+
+
+# other settings above
+# API_KEY = '38a119cd-df8e-11ee-8cbb-0200cd936042'
+
+AUTHENTICATION_BACKENDS = [
+    # ... other backends
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+
+
+AUTHENTICATION_BACKENDS = (
+    # ...
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',  # or any other authentication backend you are using
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your-client-id'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your-client-secret'
+
+
+MEDIA_URL='/media/'
+MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
 
