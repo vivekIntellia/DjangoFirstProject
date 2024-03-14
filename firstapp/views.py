@@ -1,34 +1,42 @@
 import csv
 import io
 import xlsxwriter
-from django.shortcuts import render , HttpResponse , redirect 
+from django.shortcuts import render , HttpResponse , redirect ,get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponseRedirect
 from services.models import Services 
-from firstapp.models import UserProfile
+from firstapp.models import UserProfile , UserDetail
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate , login , logout
 from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
-
+import random
 import uuid
 from django.conf import settings
 from django.contrib import messages
 from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from . helper import send_otp_to_phone
+from .form import UserProfileForm
+from .models import Profile_picture
+
 
 
 @login_required(login_url='login')
-
 def HomePage(request):
-    return render(request, 'home.html')
-
+    user = request.user
+    try:
+        profile_picture = Profile_picture.objects.get(user=user)
+        context = {'profile_picture': profile_picture}
+    except Profile_picture.DoesNotExist:
+        context = {'no_profile_picture': True}
+    return render(request, 'home.html',context)
 
 def SignupPage(request):
     error = False
     error1 = False
-
     if request.method == 'POST':
         uname = request.POST.get('username')
         email = request.POST.get('email')
@@ -36,7 +44,6 @@ def SignupPage(request):
         pass2 = request.POST.get('password2')
         request.session['signup_email'] = email
         request.session['username'] = uname
-
 
         if len(pass1) >= 8 and len(pass1) <= 16 and len(pass2) >= 8 and len(pass2) <= 16:
             has_valid_length = True
@@ -54,57 +61,103 @@ def SignupPage(request):
         if pass1 == pass2 and not error:
 
             try:
-                # Create a new user
                 my_user = User.objects.create_user(username=uname, email=email, password=pass1)
-
-                # Generate a unique verification token
                 verification_token = str(uuid.uuid4())
-
-                # Create UserProfile object
                 profile_obj = UserProfile.objects.create(user=my_user, verification_token=verification_token)
-
-                # Send verification email
                 send_mail_after_registration(email, verification_token)
-
-                # Save UserProfile object
                 profile_obj.save()
-
-                messages.success(request, 'Account created successfully. Check your email for verification.')
-                return redirect('/token_send/')
+                print('Redirecting to token_send')
+                return redirect('token_send')
             except Exception as e:
                 print('error message', e)
                 error = True
-            my_user = User.objects.create_user(uname, email, pass1)
-            my_user.save()
-            return redirect('userdetails')
+                return redirect('token_send')
         elif pass1 != pass2:
-             error1 = True
+            error1 = True
         else:
-            error
-    return render(request,'signup.html' , {'error': error , 'error1': error1})
+            error = True
+
+    return render(request, 'signup.html', {'error': error, 'error1': error1})
+
+def success(request):
+    return render(request,'success.html')
+def error_page(request):
+    return render(request,'error.html')
+
+def token_send(request):
+    return render(request,'token_send.html')
+
+def send_mail_after_registration(email, token):
+    subject = "Your account has been verified"
+    message = f"Hi, please click the following link to verify your account: http://127.0.0.1:8000/verify/{token}"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail(subject, message, email_from, recipient_list)
+    
+def verify(request, verification_token):
+    try:
+        profile_obj = UserProfile.objects.filter(verification_token=verification_token).first()
+        if profile_obj:
+            profile_obj.email_verified = True
+            profile_obj.save()
+            messages.success(request, 'Your account has been verified')
+            # Redirect to 'userdetails' instead of 'error'
+            return redirect(reverse('userdetails'))
+        else:
+            messages.error(request, 'Invalid verification token')
+            return render(request, 'error.html')
+    except Exception as e:
+        print(e)
+        messages.error(request, 'An error occurred during verification')
+        return render(request, 'error.html')
 
 def UserDetails(request):
+    user_detail = None
     if request.method == 'POST':
         sport = request.POST.get('sport')
-        school_exp = request.POST.get('school')
-        state_exp = request.POST.get('state')
-        national_exp = request.POST.get('national')
-        international_exp = request.POST.get('international')
-        print(sport , school_exp , state_exp , national_exp , international_exp)
+        school_experience = request.POST.get('school')
+        state_experience = request.POST.get('state')
+        national_experience = request.POST.get('national')
+        international_experience = request.POST.get('international')
+        username = request.session.get('username')
 
-        request.session['user_details'] = {
-            'sport': sport,
-            'school_exp': school_exp,
-            'state_exp': state_exp,
-            'national_exp': national_exp,
-            'international_exp': international_exp
-        }
+        user = User.objects.get(username=username)
+
+        user_detail = UserDetail.objects.create(
+            user = user,
+            sport = sport,
+            school_experience = school_experience,
+            state_experience = state_experience,
+            national_experience = national_experience,
+            international_experience = international_experience
+        )
+
+        sport_label = user_detail.get_sport_label()
+        user_detail.sport = sport_label
+        user_detail.save() 
+
+        request.session['user_detail_id'] = user_detail.id
         return redirect('approvalrequest')
-    return render(request , 'userdetails.html')
+    return render(request , 'userdetails.html'  , {'user_detail': user_detail})
 
-def AdminApproval(request):
-    user_details = request.session.get('user_details')
-    return render(request , 'adminApproval.html' , {'user_details': user_details})
+def adminApproval(request):
+    if request.method == 'POST':
+        user_detail_id = request.POST.get('user_detail_id')
+        note = request.POST.get('note') 
+        if user_detail_id and note:
+            user_detail = UserDetail.objects.get(id=user_detail_id)
+            user_detail.note = note 
+            user_detail.save()
+            return redirect('adminApproval') 
+        else:
+            return HttpResponse('User detail ID and note are required')
+    else:
+        user_detail_id = request.session.get('user_detail_id')
+        if user_detail_id:
+            user_detail = UserDetail.objects.get(id=user_detail_id)
+        else:
+            user_detail = None
+        return render(request, 'adminApproval.html', {'user_detail': user_detail})
 
 def ApprovalRequest(request):
     email = request.session.get('signup_email')
@@ -117,7 +170,7 @@ def ApprovalRequest(request):
         [email],
         )
 
-        admin_email = 'vivek.yadav2750@gmail.com'
+        admin_email = 'vivekyadav2750@gmail.com'
         user_details_page_url = request.build_absolute_uri(reverse('adminApproval'))
         send_mail(
             'New Approval Request',
@@ -128,30 +181,49 @@ def ApprovalRequest(request):
 
     return render(request , 'approvalrequest.html')
 
-def send_acceptance_email(request):
-    email = request.session.get('signup_email')
+def send_acceptance_email(request, user_detail_id):
+    user_detail = UserDetail.objects.get(pk=user_detail_id)
+    user_detail.status = 'Approved'
+    user_detail.save()
+
+    email = user_detail.user.email
     login_page_url = request.build_absolute_uri(reverse('login'))
     send_mail(
         'Update on Your request',
-        f'Your request has been accepted use this link to login to the website to access the services {login_page_url}',
+        f'Your request has been accepted. Use this link to login to the website to access the services: {login_page_url}',
         settings.EMAIL_HOST_USER,
         [email],
         fail_silently=False,
     )
     return JsonResponse({'message': 'Acceptance email sent'})
 
-def send_rejection_email(request):
-    email = request.session.get('signup_email')
+
+def send_rejection_email(request, user_detail_id):
+    user_detail = UserDetail.objects.get(pk=user_detail_id)
+    user_detail.status = 'Rejected'
+    user_detail.save()
+
+    email = user_detail.user.email
     send_mail(
         'Update on Your request',
-        f'We appreciate your interest in joining our organisation, but unfortunately your details does not match our required. You can reapply after 3 months.',
+        'We appreciate your interest in joining our organization, but unfortunately, your details do not match our requirements. You can reapply after 3 months.',
         settings.EMAIL_HOST_USER,
         [email],
         fail_silently=False,
     )
     return JsonResponse({'message': 'Rejection email sent'})
 
+def rejected(request):
+    user_detail_id = request.session.get('user_detail_id')
+    if user_detail_id:
+        user_detail = UserDetail.objects.get(id=user_detail_id)
+        note = user_detail.note  
+    else:
+        user_detail = None
+        note = None
+    return render(request, 'rejected.html', {'note': note})
 
+@login_required(login_url='login')
 def LoginPage(request):
     error2 = False
     verification_message = None
@@ -180,11 +252,11 @@ def LoginPage(request):
     return render(request, 'login.html', {'verification_message': verification_message})
 
 
-
 def LogoutPage(request):
     logout(request)
-    return render(request, 'login.html')
+    return redirect('login')
 
+@login_required(login_url='login')
 def services(request):
     servicedata = Services.objects.all()
     default_icon_class = 'fas fa-question-circle'
@@ -223,35 +295,6 @@ def generate_pdf(request, service_id):
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
-# USE THIS CODE TO DOWNLOAD ALL SERVICES PDF IN A SINGLE PDF FILE 
-# UPDATE THE URL WITH THIS <a href="{% url 'generate_pdf'%}" class="learn-more">Download PDF</a>
-# ALSO UPDATE THE PATH WITH THIS path('generate-pdf', views.generate_pdf, name='generate_pdf'),
-# def generate_pdf(request):
-#     services = Services.objects.all()
-#     template_path = 'services_pdf.html'
-#     context = {'services': services}
-#     template = get_template(template_path)
-#     html = template.render(context)
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = 'attachment; filename="services_pdf.pdf"'
-#     pisa_status = pisa.CreatePDF(html, dest=response)
-#     if pisa_status.err:
-#         return HttpResponse('PDF generation error', status=500)
-
-#     return response
-
-### TO DOWNLOAD ALL SERVICES DATA IN SINGLE FILE [USE THIS IN THE SERVCIE. HRML FILE <a href="{% url 'download_csv' %}" class="learn-more">Download CSV</a>#####
-# def download_csv(request):
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename="services.csv"'
-#     writer = csv.writer(response)
-#     writer.writerow(['Service Title', 'Description', 'Link'])
-#     services = Services.objects.all()
-#     for service in services:
-#         writer.writerow([service.service_icon, service.service_des, service.service_title])
-
-#     return response
-
 def download_csv(request, service_id):
     try:
         service = Services.objects.get(id=service_id)
@@ -266,7 +309,6 @@ def download_csv(request, service_id):
     except Services.DoesNotExist:
         return HttpResponse("Service not found", status=404)
     
-
 # USE THIS CODE TO GENERATE ALL THE SERVICES IN EXCEL FILE <a href="{% url 'generate_excel' %}" class="learn-more">Download EXCEL</a> USE THIS URL AND USE THIS PATH path('generate-excel/', views.generate_excel, name='generate_excel'),
 # def generate_excel(request , service_id):
 #     services = Services.objects.gte(id=service_id)
@@ -286,8 +328,7 @@ def download_csv(request, service_id):
 
 #     return response
 
-
-def generate_excel(request, service_id):
+def generate_excel(service_id):
     try:
         service = Services.objects.get(id=service_id)
     except Services.DoesNotExist:
@@ -310,101 +351,45 @@ def generate_excel(request, service_id):
 def thankyou(request):
     return render( request , 'thankyou.html')
 
-def form(request):
+def upload_profile_image(request):
+    user = request.user
     try:
-        name = request.GET['name']
-        signupemail = request.GET['signupemail']
-        signuppassword = request.GET['signuppassword']
-        confirmpassword = request.GET['signuppassword']
-        request.save()
-        print(name,signupemail,signuppassword,confirmpassword)
-    except:
-        pass
-    return render( request , 'form.html')
+        existing_profile_picture = Profile_picture.objects.get(user=user)
+    except Profile_picture.DoesNotExist:
+        existing_profile_picture = None
 
-def calculator(request):
-    data = {}
+    if request.method == 'POST':
+        form23 = UserProfileForm(request.POST, request.FILES, instance=existing_profile_picture)
+        if form23.is_valid():
+            profile_picture = form23.save(commit=False)
+            profile_picture.user = user
+            profile_picture.save()
+            # print(profile_picture.profile_picture.url)
+            return redirect('home')
+    else:
+        form23 = UserProfileForm(instance=existing_profile_picture)
+
+    return render(request, 'upload_profile_image.html', {'form23': form23})
+
+
+def display_services(request):
+  
+    servicedata = Services.objects.all()
+
+    
+
+    return render(request, 'services_table.html', {'servicedata': servicedata})
+
+
+
+def navbar(request):
+    user = request.user
     try:
-        if request.method == "POST":
-            if request.POST.get('num1') == "":
-                return render( request , 'calculator.html' , {'error' : True})
-            n1 = eval(request.POST.get('num1'))
-            # n2 = int(request.POST.get('num2'))
-            # result = request.POST.get('opr')
-            # for op in request.POST.get('opr'):
-            #     if op == '+':
-            #         cal = n1+n2
-            #     if op == '-':
-            #         cal = n1-n2
-            #     if op == '*':
-            #         cal = n1*n2
-            #     if op == '/':
-            #         cal = n1/n2
-            if n1 % 2 == 0 and n1 != 1:
-                cal = 'Even'
-            else:
-                cal = 'Odd'
-            data = {
-                'result' : cal
-            }
-            # print(cal)
-    except:
-        cal = 'Invalid opr......'
-    # print(cal)
-    return render( request , 'calculator.html' , data)
+        profile_picture = Profile_picture.objects.get(user=user)
+        context = {'profile_picture': profile_picture}
+    except Profile_picture.DoesNotExist:
+        context = {'no_profile_picture': True}
+    return render(request,'navbar.html',context)
 
-# def UserForm(request):
-#     fn = UserForms()
-#     finalans = 0
-#     data = {}
-#     try:
-#         if request.method=='post':
-#             n1 = int(request.POST['num1'])
-#             n2 = int(request.POST['num2'])
-#             finalans = n1+n2
-#             data = {
-#                 'control' : fn,
-#                 'output': finalans
-#             }
-#             url = "/about/?output={}".format(finalans)
-
-#             return redirect(url)
-#     except:
-#         pass
-
-#     return render(request,'UserForms.html',data)
-# Create your views here.
-
-
-def success(request):
-    return render(request,'success.html')
-def error_page(request):
-    return render(request,'error.html')
-
-def token_send(request):
-    return render(request,'token_send.html')
-
-def send_mail_after_registration(email, token):
-    subject = "Your account has been verified"
-    message = f"Hi, please click the following link to verify your account: http://127.0.0.1:8000/verify/{token}"
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [email]
-    send_mail(subject, message, email_from, recipient_list)
-
-def verify(request, verification_token):
-    try:
-        profile_obj = UserProfile.objects.filter(verification_token=verification_token).first()
-        if profile_obj:
-            profile_obj.email_verified = True
-            profile_obj.save()
-            messages.success(request, 'Your account has been verified')
-            return redirect(reverse('login'))
-        else:
-            messages.error(request, 'Invalid verification token')
-            return render(request, 'error.html')
-    except Exception as e:
-        print(e)
-        messages.error(request, 'An error occurred during verification')
-        return render(request, 'error.html')
 
 

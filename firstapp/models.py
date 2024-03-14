@@ -3,11 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 
 
-class firstapp(models.Model):
-    firstapp_icon = models.CharField(max_length=50)
-    firstapp_title = models.CharField(max_length=50)
-    firstapp_des = models.TextField()
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     email_verified = models.BooleanField(default=False)
@@ -18,6 +13,33 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+class UserDetail(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    sport = models.CharField(max_length=100)
+    school_experience = models.CharField(max_length=100)
+    state_experience = models.CharField(max_length=100)
+    national_experience = models.CharField(max_length=100)
+    international_experience = models.CharField(max_length=100)
 
+    def get_sport_label(self):
+        sport_labels = {
+            "1": "Football",
+            "2": "Table Tennis",
+            "3": "Volleyball",
+            "4": "Chess",
+            "5": "Basketball",
+            "6": "Skating"
+        }
+        return sport_labels.get(self.sport, "Unknown")
+    
+    def __str__(self):
+        return self.user.username
+    
+# models.py
+class Profile_picture(models.Model):
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(upload_to='profile_pics/', default='default_profile_picture.jpg')
 
-
+    def __str__(self):
+        return self.user.username
