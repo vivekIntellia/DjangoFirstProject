@@ -9,13 +9,16 @@
     <link rel="stylesheet" href="/static/signup.css">
 </head>
 <script>
-    function sendAcceptanceEmail() {
-        fetch('{% url 'send_acceptance_email' %}', {
+    function sendAcceptanceEmail(userDetailId) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const url = `{% url 'send_acceptance_email' user_detail.id %}`;
+
+        fetch(url, {
             method: 'POST',
-            body: JSON.stringify({'recipient_email': 'user@example.com'}),  // Replace with actual recipient email
+            body: JSON.stringify({'recipient_email': 'user@example.com'}), 
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
+                'X-CSRFToken': csrfToken
             }
         })
         .then(response => response.json())
@@ -27,13 +30,16 @@
         });
     }
 
-    function sendRejectionEmail() {
-        fetch('{% url 'send_rejection_email' %}', {
+    function sendRejectionEmail(userDetailId) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const url = `{% url 'send_rejection_email' user_detail.id %}`;
+
+        fetch(url, {
             method: 'POST',
-            body: JSON.stringify({'recipient_email': 'user@example.com'}),  // Replace with actual recipient email
+            body: JSON.stringify({'recipient_email': 'user@example.com'}), 
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
+                'X-CSRFToken': csrfToken
             }
         })
         .then(response => response.json())
@@ -51,17 +57,22 @@
         <div class="shape"></div>
     </div>
     <form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
     <h1>User Details</h1>
     <p>Sport: {{ user_detail.sport }}</p>
     <p>School Level Experience: {{ user_detail.school_experience }} Year</p>
     <p>State Level Experience: {{ user_detail.state_experience }} Year</p>
     <p>National Level Experience: {{ user_detail.national_experience }} Year</p>
     <p>International Level Experience: {{ user_detail.international_experience }} Year</p>
+    <label for="note">Note:</label>
+    <input type="text" id="note" name="note">
+    <input type="hidden" name="user_detail_id" value="{{ user_detail.id }}">
+    <button type="submit">Save Note</button>
     <br>
     <br>
     <div class="button-container">
-        <button type="button" class="btn btn-primary" onclick="sendAcceptanceEmail()">Accept</button>
-        <button type="button" class="btn btn-secondary" onclick="sendRejectionEmail()">Reject</button>
+        <button type="button" class="btn btn-primary" onclick="sendAcceptanceEmail({{ user_detail.id }})" name="acceptButton">Accept</button>
+        <button type="button" class="btn btn-secondary" onclick="sendRejectionEmail({{ user_detail.id }})" name="rejectButton">Reject</button>
     </div>
 
     </form>
@@ -77,5 +88,6 @@
             margin-right: 10px; 
         }
     </style>
+</body>
 </body>
 </html>

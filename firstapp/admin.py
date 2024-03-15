@@ -33,6 +33,7 @@ class UserDetailAdmin(admin.ModelAdmin):
         return f"{obj.note}"
     formatted_note.short_description = 'Note'
 
+
 admin.site.register(Profile_picture)
 admin.site.register(UserResponse)
 

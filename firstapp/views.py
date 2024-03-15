@@ -5,7 +5,7 @@ from django.shortcuts import render , HttpResponse , redirect ,get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from services.models import Services 
-from firstapp.models import UserProfile , UserDetail
+from .models import Profile_picture , UserDetail , UserProfile 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate , login , logout
 from django.contrib.auth.decorators import login_required
@@ -26,9 +26,6 @@ from . helper import send_otp_to_phone
 
 
 from .form import UserProfileForm
-from .models import Profile_picture
-
-
 
 @login_required(login_url='login')
 
@@ -411,14 +408,8 @@ def upload_profile_image(request):
 
 
 def display_services(request):
-  
     servicedata = Services.objects.all()
-
-    
-
     return render(request, 'services_table.html', {'servicedata': servicedata})
-
-
 
 def navbar(request):
     user = request.user

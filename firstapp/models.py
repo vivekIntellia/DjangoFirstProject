@@ -7,14 +7,14 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     email_verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=100, blank=True, null=True)
-    cerated_at=models.DateField(auto_now_add=True)
+    created_at=models.DateField(auto_now_add=True)
 
 
     def __str__(self):
         return self.user.username
 
 class UserDetail(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     sport = models.CharField(max_length=100)
     school_experience = models.CharField(max_length=100)
     state_experience = models.CharField(max_length=100)
@@ -36,6 +36,11 @@ class UserDetail(models.Model):
     
     def __str__(self):
         return self.user.username
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.status = 'Pending'
+        super().save(*args, **kwargs) 
     
     def save(self, *args, **kwargs):
         if not self.pk:
