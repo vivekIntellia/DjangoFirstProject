@@ -185,13 +185,17 @@ def UserDetails(request):
         return redirect('approvalrequest')
     return render(request , 'userdetails.html'  , {'user_detail': user_detail})
 
-def AdminApproval(request):
-    user_detail_id = request.session.get('user_detail_id')
-    if user_detail_id:
-        user_detail = UserDetail.objects.get(id=user_detail_id)
-    else:
-        user_detail = None
-    return render(request, 'adminApproval.html', {'user_detail': user_detail})
+def adminApproval(request):
+    if request.method == 'POST':
+        user_detail_id = request.POST.get('user_detail_id')
+        note = request.POST.get('note') 
+        if user_detail_id and note:
+            user_detail = UserDetail.objects.get(id=user_detail_id)
+            user_detail.note = note 
+            user_detail.save()
+            return redirect('adminApproval') 
+        else:
+            return HttpResponse('User detail ID and note are required')
 
 
 def ApprovalRequest(request):
@@ -216,8 +220,12 @@ def ApprovalRequest(request):
 
     return render(request , 'approvalrequest.html')
 
-def send_acceptance_email(request):
-    email = request.session.get('signup_email')
+def send_acceptance_email(request, user_detail_id):
+    user_detail = UserDetail.objects.get(pk=user_detail_id)
+    user_detail.status = 'Approved'
+    user_detail.save()
+
+    email = user_detail.user.email
     login_page_url = request.build_absolute_uri(reverse('login'))
     send_mail(
         'Update on Your request',
@@ -228,8 +236,12 @@ def send_acceptance_email(request):
     )
     return JsonResponse({'message': 'Acceptance email sent'})
 
-def send_rejection_email(request):
-    email = request.session.get('signup_email')
+def send_rejection_email(request, user_detail_id):
+    user_detail = UserDetail.objects.get(pk=user_detail_id)
+    user_detail.status = 'Rejected'
+    user_detail.save()
+
+    email = user_detail.user.email
     send_mail(
         'Update on Your request',
         f'We appreciate your interest in joining our organisation, but unfortunately your details does not match our requirement. You can reapply after 3 months.',
@@ -239,7 +251,17 @@ def send_rejection_email(request):
     )
     return JsonResponse({'message': 'Rejection email sent'})
 
+def rejected(request):
+    user_detail_id = request.session.get('user_detail_id')
+    if user_detail_id:
+        user_detail = UserDetail.objects.get(id=user_detail_id)
+        note = user_detail.note  
+    else:
+        user_detail = None
+        note = None
+    return render(request, 'rejected.html', {'note': note})
 
+@login_required(login_url='login')
 def LoginPage(request):
     error2 = False
     verification_message = None
@@ -269,8 +291,9 @@ def LoginPage(request):
 
 def LogoutPage(request):
     logout(request)
-    return render(request, 'login.html')
+    return redirect('login')
 
+@login_required(login_url='login')
 def services(request):
     servicedata = Services.objects.all()
     default_icon_class = 'fas fa-question-circle'
@@ -365,38 +388,6 @@ def generate_excel(service_id):
 
 def thankyou(request):
     return render( request , 'thankyou.html')
-
-def form(request):
-    try:
-        name = request.GET['name']
-        signupemail = request.GET['signupemail']
-        signuppassword = request.GET['signuppassword']
-        confirmpassword = request.GET['signuppassword']
-        request.save()
-        print(name,signupemail,signuppassword,confirmpassword)
-    except:
-        pass
-    return render( request , 'form.html')
-
-def calculator(request):
-    data = {}
-    try:
-        if request.method == "POST":
-            if request.POST.get('num1') == "":
-                return render( request , 'calculator.html' , {'error' : True})
-            n1 = eval(request.POST.get('num1'))
-
-            if n1 % 2 == 0 and n1 != 1:
-                cal = 'Even'
-            else:
-                cal = 'Odd'
-            data = {
-                'result' : cal
-            }
-    except:
-        cal = 'Invalid opr......'
-    return render( request , 'calculator.html' , data)
-
 
 def upload_profile_image(request):
     user = request.user

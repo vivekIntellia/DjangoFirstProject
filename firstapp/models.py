@@ -20,6 +20,8 @@ class UserDetail(models.Model):
     state_experience = models.CharField(max_length=100)
     national_experience = models.CharField(max_length=100)
     international_experience = models.CharField(max_length=100)
+    status = models.CharField(max_length = 50)
+    note = models.TextField()
 
     def get_sport_label(self):
         sport_labels = {
@@ -34,6 +36,11 @@ class UserDetail(models.Model):
     
     def __str__(self):
         return self.user.username
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.status = 'Pending'
+        super().save(*args, **kwargs) 
     
 # models.py
 class Profile_picture(models.Model):

@@ -64,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'firstapp.middleware.RequestApprovalMiddleware',
 ]
 
 ROOT_URLCONF = 'newproject.urls'
