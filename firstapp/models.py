@@ -42,6 +42,11 @@ class UserDetail(models.Model):
             self.status = 'Pending'
         super().save(*args, **kwargs) 
     
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.status = 'Pending'
+        super().save(*args, **kwargs) 
+    
 # models.py
 class Profile_picture(models.Model):
     
@@ -50,3 +55,10 @@ class Profile_picture(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+
+
+class UserResponse(models.Model):
+    response_text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+

@@ -64,7 +64,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    'firstapp.middleware.RequestApprovalMiddleware'
+    'firstapp.middleware.RequestApprovalMiddleware',
 ]
 
 ROOT_URLCONF = 'newproject.urls'
@@ -154,7 +154,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ayushijain.jain12345@gmail.com' 
+EMAIL_HOST_USER = 'ayushijain.jain12345@gmail.com'  # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = 'psfb jcsa tltg yrnh'
 
 # other settings above
@@ -179,6 +179,12 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your-client-secret'
 
 MEDIA_URL='/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
+
+LOGIN_URL='login'
+LOGOUT_URL='logout'
+LOGIN_REDIRECT_URL = '/home/'
+LOGOUT_REDIRECT_URL = '/login/'
+
 
 
 
