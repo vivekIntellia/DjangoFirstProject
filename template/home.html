@@ -53,21 +53,14 @@
           <a href="{% url 'logout' %}"
             class="block mt-3 bg-blue-500 hover:bg-blue-700 px-6 py-2 rounded text-white font-semibold md:ml-6 md:mt-0">Logout</a>
           <div>
-       
               <span class="dot">
                 {% if profile_picture %}
                 <img src="{{ profile_picture.profile_picture.url }}" class="w3-circle circle-image" alt="Profile Picture">
               {% else %}
                 <p>No profile picture uploaded yet.</p>
-                
               {% endif %}
-              <a href="{% url 'upload_profile_image' %}" class="btn btn-primary mt-2">Upload Image</a>
-
-              
-            
-           
+              <a href="{% url 'upload_profile_image' %}" class="btn btn-primary mt-2 w3-circle circle-image">Upload Image</a>
               </span>
-              
             </form>
           </div>
         </div>

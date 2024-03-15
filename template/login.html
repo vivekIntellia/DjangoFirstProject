@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Login Page</title>
- 
+
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="/static/login.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="/static/login.css"> -->
 </head>
+
 <body>
     <div class="background">
         <div class="shape"></div>
@@ -30,42 +35,213 @@
         Please Enter the Correct Username and Password
     </div>
     {% endif %}
+    <div class="login-container">
+        <div class="login-content">
+          <div class="login-content_header">
+            <span class="logo">
+              <box-icon type='solid' name='landscape' color="#87A922"></box-icon> Land Scape
+            </span>
+            <h2>Welcome back</h2>
+          </div>
+          <div>
+            <form method="post" class="login-form">
+            {% csrf_token %}
+            <input type="text" placeholder="Enter Username" id="username" name="username">
+            <input type="password" placeholder="Password" id="password" name="pass">
+            <label for="forgotForm"><a href="{% url 'password_reset' %}">Forgot Password</a></label>
+              <input type="submit"> 
+            </form>
+            <div class="login-netoworks">
+              <p>Don't have an account?  <span><a href="{% url 'signup' %}">Register</a></span></p>
+              <div class="login-or"><hr/></div>
+              <ul class="login-icons">
+                <li>
+                  <box-icon color="#fff" type='logo' name='google'><i class="fab fa-google"></i></box-icon> Sing in with Google
+                </li>
+                <li>
+                  <box-icon color="#fff" type='logo' name='facebook-circle'><i class="fab fa-facebook"></i></box-icon> Sing in with Facebook
+                </li>
+                <li>
+                  <box-icon color="#fff" type='logo' name='github'><i class="fab fa-github"></i></box-icon> Sing in with GitHub
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% if verification_message %}
+    <div class="alert alert-warning">
+        {{ verification_message }}
+    </div>
+    {% endif %}
 
-    <form method="post">
-        <h3>Login Here</h3>
-        {% csrf_token %} 
-        <label for="username">Username</label>
-        <input type="text" placeholder="Enter Username" id="username" name="username">
-
-        <label for="password">Password</label>
-        <input type="password" placeholder="Password" id="password" name="pass">
-
-        <button type="submit">Log In</button>
-        <br>
-        <br>
-        <a href="{% url 'signup' %}" >Create a account</a>
-        <small><a href="{% url 'password_reset' %}">Forgot Password ?</a></small> <br>
-    </form>
     <script>
-      function hideErrorMessage() {
-          setTimeout(function() {
-              var errorMessage = document.getElementById('error-message');
-              if (errorMessage) {
-                  errorMessage.style.display = 'none';
-              }
-          }, 3000);
-      }
-      window.onload = function() {
-          hideErrorMessage();
-      }
-  </script>
+        function hideErrorMessage() {
+            setTimeout(function () {
+                var errorMessage = document.getElementById('error-message');
+                if (errorMessage) {
+                    errorMessage.style.display = 'none';
+                }
+            }, 3000);
+        }
+        window.onload = function () {
+            hideErrorMessage();
+        }
+    </script>
 
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Mitr:wght@200;300;400;500;600;700&display=swap");
+:root {
+  --c-primary: #b2b377;
+  --p-8-16: 8px 16px;
+  --m-8-0: 8px 0;
+}
+html {
+  font-size: 63.5%;
+  font-family: "Mitr", sans-serif;
+}
+body {
+  width: 100vw;
+  height: 100vh;
+  background-image: url("https://images.pexels.com/photos/1275415/pexels-photo-1275415.jpeg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.login-container {
+  padding: 40px 20px;
+  text-align: center;
+}
+.login-content {
+  backdrop-filter: blur(6px);
+  border: 2px solid #d2d18080;
+  -webkit-box-shadow: -1px -1px 30px -8px rgba(0, 0, 0, 0.9);
+  -moz-box-shadow: -1px -1px 30px -8px rgba(0, 0, 0, 0.9);
+  box-shadow: -1px -1px 30px -8px rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  border-radius: 1.6rem;
+  color: white;
+}
+.logo {
+  font-size: 2rem;
+}
+h2 {
+  font-size: 4.2rem;
+  line-height: 2.8;
+}
+p{
+    font-size: 16px;
+}
+a{
+    color: white;
+    text-decoration: none;
+}
+a:hover{
+    color: blue;
+}
 
+label {
+    display: inline-block;
+    font-size: 16px;
+    margin-left: 141px;
+}
 
- {% if verification_message %}
-  <div class="alert alert-warning">
-      {{ verification_message }}
-  </div>
-{% endif %}
+.login-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  max-width: 260px;
+  margin: 0 auto;
+}
+.login-form input {
+  width: 27rem;
+  height: 43px;
+  background-color: #ffffff40;
+  color: #fff;
+  padding: var(--p-8-16);
+  border-radius: 8px;
+}
+input {
+  font-size: 1.6rem;
+  border: none;
+  margin: var(--m-8-0);
+}
+input::placeholder {
+  color: #fff;
+}
+input[type="submit"] {
+  border: none;
+  background-color: var(--c-primary);
+  color: #163020;
+  font-weight: 600;
+  font-size: 16px;
+}
+.login-netoworks,
+.login-or {
+  margin: 16px 0;
+}
+hr {
+  width: 70%;
+  border-color: #ffffff40;
+}
+
+.login-icons {
+  text-align: left;
+  margin: 0 auto;
+  margin-bottom: 2.5rem;
+  max-width: 260px;
+}
+.login-icons li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 1px solid #ffffff40;
+  padding: var(--p-8-16);
+  margin: var(--m-8-0);
+  border-radius: 4px;
+  font-size: 1.7rem;
+  font-weight: 400;
+}
+.login-icons li > [type="logo"] {
+  margin-right: 8px;
+}
+
+@media screen and (min-width: 400px) {
+  .login-content_header span.logo {
+    display: none;
+  }
+  .login-container {
+    padding: 0px;
+  }
+  .login-content {
+    position: absolute;
+    right: 0px;
+    width: 500px;
+    height: 100vh;
+    max-height:100%;
+    border: 0;
+    border-left: 3px solid #d2d18080;
+    border-radius: 0;
+    max-width: 50%;
+  }
+  .login-content {
+    animation: fRight 1s ease-in-out;
+  }
+  @keyframes fRight {
+    from {
+      opacity: 0;
+      transform: translateX(300px);
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+    </style>
 </body>
+
 </html>
+

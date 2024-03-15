@@ -1,81 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.1.4/tailwind.min.css'>
-    <link href='/static/index.js'>
-    <link rel="stylesheet" href="/static/home.css">
-    <title>navbar</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.1.4/tailwind.min.css'>
+  <link href='/static/index.js'>
+  <link rel="stylesheet" href="/static/home.css">
+  <title>navbar</title>
 </head>
+
 <body class="antialiased font-sans">
-    <nav class="bg-transparent py-4 px-4 lg:px-16 xl:py-8 fixed top-0 z-50 w-full md:px-8 xl:px-24 xxl:px-40" id="navbar">
-        <div class="flex items-center justify-between flex-wrap relative">
-          <div class="mb-2 sm:mb-0 flex flex-row
+  <nav class="bg-transparent py-4 px-4 lg:px-16 xl:py-8 fixed top-0 z-50 w-full md:px-8 xl:px-24 xxl:px-40" id="navbar">
+    <div class="flex items-center justify-between flex-wrap relative">
+      <div class="mb-2 sm:mb-0 flex flex-row
           ">
-            <div class="h-10 w-10 self-center mb-4">
-              <img class="h-10 w-16 self-center" src="https://bytewebster.com/img/logo.png" />
-            </div>
-            <div>
-              <a href="#" class="text-3xl no-underline text-blue-700 font-sans font-bold">INTELLIA<span
-                  class="text-green-800">TECH</span></a><br>
-              <span class="text-xs text-grey-dark">Have A Bright Life!</span>
-            </div>
-          </div>
-    
-          <div class="w-1/2 text-right sm:hidden">
-            <button type="button" class="navbar-toggler">
-              <span class="navbar-toggler-bar"></span>
-              <span class="navbar-toggler-bar"></span>
-              <span class="navbar-toggler-bar"></span>
-            </button>
-          </div>
-    
-          <div class="w-full navigation-menu hidden md:flex md:w-3/4 relative">
-            <div class="flex flex-col md:flex-row pt-8 pb-2 md:pt-0 md:pb-0 md:ml-auto md:items-center relative">
-              <a href="#" class="font-semibold hover:text-gray-600">Rates</a>
-              <a href="#"
-                class="block mt-4 font-semibold max-w-3xl hidden md:ml-6 lg:inline hover:text-gray-600 md:mt-0">About
-                Us</a>
-              <a href="#" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0 menu_item">Resources</a>
-              <a href="{% url 'display_services' %}" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0 menu_item">Our Experties</a>
-              <a href="#" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0">FAQs</a>
-              <a href="/services" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0">Services</a>
-              <a href="/thankyou"
-                class="block mt-3 bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded text-white font-semibold md:ml-6 md:mt-0">Get
-                Started</a>
-              <a href="{% url 'logout' %}"
-                class="block mt-3 bg-blue-500 hover:bg-blue-700 px-6 py-2 rounded text-white font-semibold md:ml-6 md:mt-0">Logout</a>
-              <div>
-           
-                  <span class="dot">
-                    {% if profile_picture %}
-                    <img src="{{ profile_picture.profile_picture.url }}" class="w3-circle circle-image" alt="Profile Picture">
-                  {% else %}
-                    <p>No profile picture uploaded yet.</p>
-                    <a href="{% url 'upload_profile_image' %}" class="btn btn-primary mt-2">Upload Image</a>
-                  {% endif %}
-    
-                  
-                
-               
-                  </span>
-                  
-                </form>
-              </div>
-            </div>
+        <div class="h-10 w-10 self-center mb-4">
+          <img class="h-10 w-16 self-center" src="https://bytewebster.com/img/logo.png" />
+        </div>
+        <div>
+          <a href="#" class="text-3xl no-underline text-blue-700 font-sans font-bold">INTELLIA<span
+              class="text-green-800">TECH</span></a><br>
+          <span class="text-xs text-grey-dark">Have A Bright Life!</span>
+        </div>
+      </div>
+
+      <div class="w-1/2 text-right sm:hidden">
+        <button type="button" class="navbar-toggler">
+          <span class="navbar-toggler-bar"></span>
+          <span class="navbar-toggler-bar"></span>
+          <span class="navbar-toggler-bar"></span>
+        </button>
+      </div>
+
+      <div class="w-full navigation-menu hidden md:flex md:w-3/4 relative">
+        <div class="flex flex-col md:flex-row pt-8 pb-2 md:pt-0 md:pb-0 md:ml-auto md:items-center relative">
+          <a href="#" class="font-semibold hover:text-gray-600">Rates</a>
+          <a href="#"
+            class="block mt-4 font-semibold max-w-3xl hidden md:ml-6 lg:inline hover:text-gray-600 md:mt-0">About
+            Us</a>
+          <a href="#" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0 menu_item">Resources</a>
+          <a href="{% url 'display_services' %}"
+            class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0 menu_item">Our Experties</a>
+          <a href="#" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0">FAQs</a>
+          <a href="/services" class="block mt-3 font-semibold md:ml-6 hover:text-gray-600 md:mt-0">Services</a>
+          <a href="/thankyou"
+            class="block mt-3 bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded text-white font-semibold md:ml-6 md:mt-0">Get
+            Started</a>
+          <a href="{% url 'logout' %}"
+            class="block mt-3 bg-blue-500 hover:bg-blue-700 px-6 py-2 rounded text-white font-semibold md:ml-6 md:mt-0">Logout</a>
+          <div>
+            <span class="dot">
+              {% if profile_picture %}
+              <img src="{{ profile_picture.profile_picture.url }}" class="w3-circle circle-image" alt="Profile Picture">
+              {% else %}
+              {% comment %} <p>No profile picture uploaded yet.</p> {% endcomment %}
+              <button type="button" class="btn btn-primary upload_image"><a
+                  href="{% url 'upload_profile_image' %}">Upload Image</a></button>
+              {% endif %}
+            </span>
+            </form>
           </div>
         </div>
-      </nav>
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-Uo1LxIepHegU6pOTy8adl+gAqNDe0p06ILSHRMIfjQ7g/qjMynV6s/0c9PyX1cKl" crossorigin="anonymous"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    
-      {% block content %}
-        
-      {% endblock content %}
-      {% block extrascripts %}
-      {% endblock extrascripts %}
+      </div>
+    </div>
+  </nav>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-Uo1LxIepHegU6pOTy8adl+gAqNDe0p06ILSHRMIfjQ7g/qjMynV6s/0c9PyX1cKl"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+
+  {% block content %}
+
+  {% endblock content %}
+  {% block extrascripts %}
+  {% endblock extrascripts %}
+  <style>
+    .upload_image {
+      margin-top: 94px;
+      font-size: 20px;
+      margin-left: 51px;
+    }
+
+    .dot {
+    height: 225px;
+    width: 225px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: -61px;
+    margin-left: 22px;
+    margin-bottom: -150px;
+    overflow: hidden;
+}
+  </style>
 </body>
+
 </html>

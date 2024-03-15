@@ -143,7 +143,7 @@ def verify(request, verification_token):
             profile_obj.email_verified = True
             profile_obj.save()
             messages.success(request, 'Your account has been verified')
-            return redirect(reverse('login'))
+            return redirect(reverse('userdetails'))
         else:
             messages.error(request, 'Invalid verification token')
             return render(request, 'error.html')
@@ -193,6 +193,13 @@ def adminApproval(request):
             return redirect('adminApproval') 
         else:
             return HttpResponse('User detail ID and note are required')
+    else:
+        user_detail_id = request.session.get('user_detail_id')
+        if user_detail_id:
+            user_detail = UserDetail.objects.get(id=user_detail_id)
+        else:
+            user_detail = None
+        return render(request, 'adminApproval.html', {'user_detail': user_detail})
 
 
 def ApprovalRequest(request):
@@ -262,6 +269,7 @@ def rejected(request):
 def LoginPage(request):
     error2 = False
     verification_message = None
+    next_url = request.GET.get('next')
 
     if request.method == 'POST':
         username = request.POST.get('username')
