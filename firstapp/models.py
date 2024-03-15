@@ -43,3 +43,10 @@ class Profile_picture(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+
+
+class UserResponse(models.Model):
+    response_text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+

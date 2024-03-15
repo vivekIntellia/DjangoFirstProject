@@ -13,6 +13,8 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
 
+from .models import UserResponse
+
 import random
 import uuid
 from django.conf import settings
@@ -437,3 +439,16 @@ def navbar(request):
     return render(request,'navbar.html',context)
 
 
+def chatbot(request):
+    return render(request,'chatbot.html')
+
+def save_response(request):
+    if request.method == 'POST' and 'userResponse' in request.POST:
+        user_response_text = request.POST['userResponse']  # Correct key name
+        print("User Response:", user_response_text)  # Debugging: Print user response to console
+        # Save the user response in the database
+        user_response = UserResponse.objects.create(response_text=user_response_text)  # Correct field name
+        print("User Response saved:", user_response)  # Debugging: Print saved response object to console
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'error': 'Invalid request method or parameters'})

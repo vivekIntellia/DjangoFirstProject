@@ -41,7 +41,7 @@
     <form id="uploadForm" method="post" enctype="multipart/form-data" action="{% url 'upload_profile_image' %}">
       {% csrf_token %}
       {{ form.as_p }}
-      <button type="button" class="btn btn-primary" onclick="uploadImage()">Upload Image</button>
+      <button type="submit" class="btn btn-primary">Upload Image</button> <!-- Changed type to "submit" -->
     </form>
   </div>
 
@@ -49,12 +49,5 @@
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-Uo1LxIepHegU6pOTy8adl+gAqNDe0p06ILSHRMIfjQ7g/qjMynV6s/0c9PyX1cKl" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-  <script>
-    function uploadImage() {
-      // Trigger the form submission
-      document.getElementById('uploadForm').submit();
-    }
-  </script>
 </body>
 </html>

@@ -149,14 +149,12 @@ STATICFILES_DIRS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR , 'media')
 
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "ayushijain.jain12345@gmail.com"
-EMAIL_HOST_PASSWORD = "psfb jcsa tltg yrnh"
-
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ayushijain.jain12345@gmail.com'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = 'psfb jcsa tltg yrnh'
 
 # other settings above
 # API_KEY = '38a119cd-df8e-11ee-8cbb-0200cd936042'
@@ -181,7 +179,12 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your-client-secret'
 MEDIA_URL='/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+LOGIN_URL='login'
+LOGOUT_URL='logout'
+LOGIN_REDIRECT_URL = '/home/'
+LOGOUT_REDIRECT_URL = '/login/'
+
+
 
 
 
