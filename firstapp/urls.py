@@ -35,9 +35,6 @@ urlpatterns = [
     path('navbar/',views.navbar,name='navbar'),
     path('chatbot/save_response', views.save_response, name='save_response'),
     path('chatbot/',views.chatbot,name='chatbot'),
-
-
-
     path('passwordchange/',auth_views.PasswordChangeView.as_view(template_name='passwordchange.html', form_class=MyPasswordchangeField, success_url='/passwordchangedone/'),name='passwordchange'),
     path('passwordchangedone/',auth_views.PasswordChangeView.as_view(template_name='passwordchangedone.html'),name='passwordchangedone'),
     path('password-reset/',auth_views.PasswordResetView.as_view(template_name='password_reset.html',form_class=MyPasswordResetForm),name='password_reset'),
