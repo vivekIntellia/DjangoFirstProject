@@ -11,20 +11,17 @@ def RequestApprovalMiddleware(get_response):
         for user_detail in user_details:
             if user_detail.status == 'Rejected':
                 if current_path != '/rejected/':
-                    print("Redirecting to rejected page") 
                     return redirect('rejected')
                 
                 if request.method == 'POST' and 'signup_after_rejection' in request.POST:
                     user_detail.status = 'Pending'
                     user_detail.save()
-                    print("Redirecting to signup page")
                     return redirect('signup')
                 else:
                     response = get_response(request)
                     return response
 
             elif user_detail.status == 'Approved':
-                print("Redirecting to login page")
                 return redirect('login')  
 
         response = get_response(request)
