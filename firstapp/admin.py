@@ -15,7 +15,7 @@ class UserDetailAdmin(admin.ModelAdmin):
 
     def formatted_state_experience(self, obj):
         return f"{obj.state_experience} Years"
-    formatted_state_experience.description = 'State Experience'
+    formatted_state_experience.short_description = 'State Experience'
 
     def formatted_national_experience(self, obj):
         return f"{obj.national_experience} Years"
