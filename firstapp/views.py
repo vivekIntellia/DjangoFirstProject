@@ -193,6 +193,13 @@ def adminApproval(request):
             return redirect('adminApproval') 
         else:
             return HttpResponse('User detail ID and note are required')
+    else:
+        user_detail_id = request.session.get('user_detail_id')
+        if user_detail_id:
+            user_detail = UserDetail.objects.get(id=user_detail_id)
+        else:
+            user_detail = None
+        return render(request, 'adminApproval.html', {'user_detail': user_detail})
 
 
 def ApprovalRequest(request):
