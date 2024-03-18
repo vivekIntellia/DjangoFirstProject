@@ -110,7 +110,7 @@ def verify(request, verification_token):
         if profile_obj:
             profile_obj.email_verified = True
             profile_obj.save()
-            messages.success(request, 'Your account has been verified')
+            # messages.success(request, 'Your account has been verified')
             # Redirect to 'userdetails' instead of 'error'
             return redirect(reverse('userdetails'))
         else:
