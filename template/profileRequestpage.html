@@ -1,0 +1,181 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Profile Approval Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="import" href="shared-content.html">
+    <link rel="stylesheet" href="/static/adminApproval.css/">
+</head>
+ <script>
+    function sendAcceptanceEmail(userDetailId) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const url = `{% url 'send_profile_acceptance_email' signup_obj.id %}`;
+
+        fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({'recipient_email': 'user@example.com'}), 
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error sending acceptance email:', error);
+        });
+    }
+
+    function sendRejectionEmail(userDetailId) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const url = `{% url 'send_profile_rejection_email' signup_obj.id %}`;
+
+        fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({'recipient_email': 'user@example.com'}), 
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error sending rejection email:', error);
+        });
+    }
+</script> 
+<body>
+    <div class="bg-img">
+    <form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h1>Profile Details</h1>
+    <div class="content">
+    <p>First Name: {{ signup_obj.fname }}</p>
+    <p>Last Name: {{ signup_obj.lname }}</p>
+    <p>Username: {{ signup_obj.user.username }}</p>
+    <p>Gender: {{ signup_obj.gender }}</p>
+    <p>Email: {{ signup_obj.user.email }}</p>
+    <p>Phone: {{ signup_obj.phone }}</p>
+    <p>Address: {{ signup_obj.address }}</p>
+    <p>Zip Code: {{ signup_obj.zip_code }}</p>
+    <p>City: {{ signup_obj.city }}</p>
+    <p>State: {{ signup_obj.state }}</p>
+    <p>Country: {{ signup_obj.country }}</p>
+    <p>Description: {{ signup_obj.description }}</p>
+</div>
+     <div class="button-container">
+        <button type="button" class="btn btn-primary" onclick="sendAcceptanceEmail({{ signup_obj.id }})" name="acceptButton">Accept</button>
+        <button type="button" class="btn btn-secondary" onclick="sendRejectionEmail({{ signup_obj.id }})" name="rejectButton">Reject</button>
+    </div> 
+    </form>
+    </div>
+</body> 
+</body>
+</html> {% endcomment %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Profile Approval Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="import" href="shared-content.html">
+    <link rel="stylesheet" href="/static/profileRequest.css/">
+</head>
+<script>
+function adjustFormHeight() {
+    var descriptionHeight = document.getElementById('descriptionContent').scrollHeight;
+    var myForm = document.getElementById('myForm');
+    
+    var formHeightCSS = window.getComputedStyle(myForm).getPropertyValue('height');
+    formHeightCSS = parseFloat(formHeightCSS.replace('px', ''));
+
+    var finalHeight = Math.max(descriptionHeight, formHeightCSS);
+
+    myForm.style.height = finalHeight + 'px';
+}
+
+window.onload = function() {
+    adjustFormHeight();
+};
+
+
+
+    function sendProfileAcceptanceEmail(signupObjId) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const url = `{% url 'send_profile_acceptance_email' signup_obj.id  %}`;
+
+        fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({'recipient_email': 'user@example.com'}), 
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error sending acceptance email:', error);
+        });
+    }
+
+    function sendProfileRejectionEmail(signupObjId) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const url = `{% url 'send_profile_rejection_email' signup_obj.id %}`;
+
+        fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({'recipient_email': 'user@example.com'}), 
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error sending rejection email:', error);
+        });
+    }
+    
+</script>
+<body>
+    <div class="bg-img" id="formContainer">
+        <form id="myForm" action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h1><b>Profile Details</b></h1>
+        <div class="content">
+        <p><b><i>First Name:</i></b> {{ signup_obj.fname }}</p>
+        <p><b><i>Last Name:</i></b>{{ signup_obj.lname }}</p>
+        <p><b><i>Username:</i></b>{{ signup_obj.user.username }}</p>
+        <p><b><i>Gender:</i></b> {{ signup_obj.gender }}</p>
+        <p><b><i>Email:</i></b> {{ signup_obj.user.email }}</p>
+        <p><b><i>Phone:</i></b> {{ signup_obj.phone }}</p>
+        <p><b><i>Address:</i></b> {{ signup_obj.address }}</p>
+        <p><b><i>Zip Code:</i></b> {{ signup_obj.zip_code }}</p>
+        <p><b><i>City:</i></b> {{ signup_obj.city }}</p>
+        <p><b><i>State:</i></b> {{ signup_obj.state }}</p>
+        <p><b><i>Country:</i></b> {{ signup_obj.country }}</p>
+        <p id="descriptionContent"><b><i>Description:</i></b> {{ signup_obj.description }}</p>
+    </div>
+    <div class="button-container">
+        <button type="button" class="btn btn-primary accept_button" onclick="sendProfileAcceptanceEmail({{ signup_obj.id  }})" name="acceptButton"><b>Accept</b></button>
+        <button type="button" class="btn btn-secondary reject_button" onclick="sendProfileRejectionEmail({{ signup_obj.id  }})" name="rejectButton"><b>Reject</b></button>
+    </div>
+    </form>
+    </div>
+</body>
+</body>
+</html>

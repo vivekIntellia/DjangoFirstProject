@@ -1,0 +1,103 @@
+html {
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    color: white;
+    text-align: center;
+    background-image: url(https://www.fnu.edu/wp-content/uploads/2014/09/Study_in_group_in_the_HHS_library.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: Inter, sans-serif;
+  }
+  
+  .container {
+    padding: 48px 0;
+    width: 100%;
+  }
+  
+  p {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  h1 {
+    margin: 0;
+    margin-bottom: 16px;
+    font-size: 36px;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  form {
+    width: 624px;
+    height: 800px;
+    margin: 48px auto 36px auto;
+    background-color: #1e002acc;
+    padding: 48px 36px;
+    border-radius: 70px;
+    animation: fRight 1s ease-in-out;
+  }
+  
+  form label:first-of-type {
+    margin-top: 0;
+  }
+  
+  label {
+      display: block;
+      margin-top: 24px;
+      margin-bottom: 4px;
+      font-size: 20px;
+      font-weight: 600;
+  }
+  
+  input,
+  button {
+    width: 100%;
+    max-width: 600px;
+    min-height: 32px;
+    margin-top: 8px;
+    padding: 8px 8px;
+    border-radius: 20px;
+    border: 0;
+    font-family: Inter, sans-serif;
+    font-size: 18px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  
+  input[type="text"]{
+      font-size: 20px;
+      text-align: center;
+  }
+  
+  .form-select , option{
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 20px;
+      text-align: center;
+  }
+  
+  button {
+      padding: 12px;
+      margin-top: 35px;
+      font-size: 18px;
+      font-weight: 600;
+      background-color: rgb(0, 170, 0);
+      color: white;
+  }
+  
+  @keyframes fRight {
+      from {
+        opacity: 0;
+        transform: translateX(500px);
+      }
+      to {
+        opacity: 1;
+      }
+    }

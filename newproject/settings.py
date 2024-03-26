@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # 'viewflow.site',
     # 'viewflow.siteservices',
     'viewflow.frontend',
+    'viewflow.workflow',
     'services',
     'firstapp',
     'rest_framework',
@@ -70,6 +71,8 @@ MIDDLEWARE = [
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'firstapp.middleware.RequestApprovalMiddleware',
+    'firstapp.middleware.ProfileRequestApprovalMiddleware',
+    # 'firstapp.middleware.ProfileCompletionMiddleware'
 ]
 
 ROOT_URLCONF = 'newproject.urls'

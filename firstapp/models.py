@@ -2,8 +2,34 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from viewflow import jsonstore
+from viewflow.workflow.models import Process
 
 
+# class User(AbstractUser):
+#    gender = models.BooleanField(default=True)
+class SignUp(models.Model):
+    user = models.OneToOneField(User,  on_delete=models.CASCADE)
+    fname = models.CharField(max_length=100)
+    lname = models.CharField(max_length=100)
+    gender = models.CharField(max_length=10, null=True, blank=True)
+    phone = models.CharField(max_length=15)
+    address = models.CharField(max_length=255)
+    zip_code = models.CharField(max_length=10)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+    description = models.TextField()
+    status = models.CharField(max_length = 50 , default=False)
+    approved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.status = 'Pending'
+        super().save(*args, **kwargs) 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -44,12 +70,6 @@ class UserDetail(models.Model):
             self.status = 'Pending'
         super().save(*args, **kwargs) 
     
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.status = 'Pending'
-        super().save(*args, **kwargs) 
-    
-
 class Profile_picture(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -64,9 +84,6 @@ class Profile_picture(models.Model):
 class UserResponse(models.Model):
     response_text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-
-
-
 
 class Education(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
