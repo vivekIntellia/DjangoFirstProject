@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
 
 
 class UserProfile(models.Model):
@@ -47,11 +49,12 @@ class UserDetail(models.Model):
             self.status = 'Pending'
         super().save(*args, **kwargs) 
     
-# models.py
+
 class Profile_picture(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_picture = models.ImageField(upload_to='profile_pics/', default='default_profile_picture.jpg')
+    # profile_picture = models.ImageField(upload_to='profile_pics/', default='default_profile_picture.jpg')
+    profile_picture = models.ImageField(upload_to='profile_pics/')
 
     def __str__(self):
         return self.user.username
@@ -61,4 +64,37 @@ class Profile_picture(models.Model):
 class UserResponse(models.Model):
     response_text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+
+
+class Education(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    class_10_school_name = models.CharField(max_length=100, null=True, blank=True)
+    class_10_board_or_university = models.CharField(max_length=100, null=True, blank=True)
+    class_10_year_of_passing = models.IntegerField(null=True, blank=True)
+    class_10_grade_or_cgpa = models.FloatField(null=True, blank=True)
+    class_10_marksheet = models.ImageField(upload_to='marksheet/', null=True, blank=True)
+    class_10_percentage = models.FloatField(null=True, blank=True)
+
+    class_12_school_name = models.CharField(max_length=100, null=True, blank=True)
+    class_12_board_or_university = models.CharField(max_length=100, null=True, blank=True)
+    class_12_year_of_passing = models.IntegerField(null=True, blank=True)
+    class_12_grade_or_cgpa = models.FloatField(null=True, blank=True)
+    class_12_marksheet = models.ImageField(upload_to='marksheet/', null=True, blank=True)
+    class_12_percentage = models.FloatField(null=True, blank=True)
+
+    graduation_college_name = models.CharField(max_length=100, null=True, blank=True)
+    graduation_board_or_university = models.CharField(max_length=100, null=True, blank=True)
+    graduation_year_of_passing = models.IntegerField(null=True, blank=True)
+    graduation_grade_or_cgpa = models.FloatField(null=True, blank=True)
+    graduation_marksheet = models.ImageField(upload_to='marksheet/', null=True, blank=True)
+    graduation_percentage = models.FloatField(null=True, blank=True)
+
+    approved = models.BooleanField(default=False)  
+
+    def __str__(self):
+        return f"{self.user.username}'s Education Details"
+
 

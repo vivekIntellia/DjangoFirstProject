@@ -41,6 +41,7 @@
     <form id="uploadForm" method="post" enctype="multipart/form-data" action="{% url 'upload_profile_image' %}">
       {% csrf_token %}
       {{ form.as_p }}
+      <!-- <input type="file" name="image" accept="image/*"> -->
       <button type="submit" class="btn btn-primary">Upload Image</button> <!-- Changed type to "submit" -->
     </form>
   </div>

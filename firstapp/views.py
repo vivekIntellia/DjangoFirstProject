@@ -12,9 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
-
 from .models import UserResponse
-
 import random
 import uuid
 from django.conf import settings
@@ -23,9 +21,15 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from . helper import send_otp_to_phone
-
-
 from .form import UserProfileForm
+from django.contrib import messages
+from .forms import EducationForm
+from .models import Education
+from django.views import View
+from django.core.exceptions import ValidationError
+from .forms import ReviewEducationForm
+
+
 
 @login_required(login_url='login')
 
@@ -36,7 +40,7 @@ def HomePage(request):
         context = {'profile_picture': profile_picture}
     except Profile_picture.DoesNotExist:
         context = {'no_profile_picture': True}
-    return render(request, 'home.html',context)
+    return render(request, 'home.html', context)
 
 
 def SignupPage(request):
@@ -343,24 +347,6 @@ def download_csv(request, service_id):
     except Services.DoesNotExist:
         return HttpResponse("Service not found", status=404)
     
-# USE THIS CODE TO GENERATE ALL THE SERVICES IN EXCEL FILE <a href="{% url 'generate_excel' %}" class="learn-more">Download EXCEL</a> USE THIS URL AND USE THIS PATH path('generate-excel/', views.generate_excel, name='generate_excel'),
-# def generate_excel(request , service_id):
-#     services = Services.objects.gte(id=service_id)
-#     output = io.BytesIO()
-#     workbook = xlsxwriter.Workbook(output)
-#     worksheet = workbook.add_worksheet()
-#     headers = ['Service Title', 'Description', 'Icon']
-#     for col, header in enumerate(headers):
-#         worksheet.write(0, col, header)
-#     for row, service in enumerate(services, start=1):
-#         worksheet.write(row, 0, service.service_title)
-#         worksheet.write(row, 1, service.service_des)
-#         worksheet.write(row, 2, service.service_icon)
-#     workbook.close()
-#     response = HttpResponse(output.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-#     response['Content-Disposition'] = 'attachment; filename="services_report.xlsx"'
-
-#     return response
 
 
 def generate_excel(service_id):
@@ -386,39 +372,39 @@ def generate_excel(service_id):
 def thankyou(request):
     return render( request , 'thankyou.html')
 
+
+
 def upload_profile_image(request):
     user = request.user
     try:
-        existing_profile_picture = Profile_picture.objects.get(user=user)
+        # Attempt to retrieve the user's existing profile picture
+        profile_picture = Profile_picture.objects.get(user=user)
     except Profile_picture.DoesNotExist:
-        existing_profile_picture = None
+        profile_picture = None
 
     if request.method == 'POST':
-        form23 = UserProfileForm(request.POST, request.FILES, instance=existing_profile_picture)
-        if form23.is_valid():
-            profile_picture = form23.save(commit=False)
+        # If the form is submitted via POST, process the form data
+        form = UserProfileForm(request.POST, request.FILES, instance=profile_picture)
+        if form.is_valid():
+            # Save the form data to the database
+            profile_picture = form.save(commit=False)
             profile_picture.user = user
             profile_picture.save()
-            # print(profile_picture.profile_picture.url)
+            # Redirect to the home page or any other desired page after successful upload
             return redirect('home')
     else:
-        form23 = UserProfileForm(instance=existing_profile_picture)
+        # If the request method is GET, initialize the form with existing profile picture data if available
+        form = UserProfileForm(instance=profile_picture)
 
-    return render(request, 'upload_profile_image.html', {'form23': form23})
+    # Render the upload_profile_image.html template with the form
+    return render(request, 'upload_profile_image.html', {'form': form})
 
 
 def display_services(request):
     servicedata = Services.objects.all()
     return render(request, 'services_table.html', {'servicedata': servicedata})
 
-def navbar(request):
-    user = request.user
-    try:
-        profile_picture = Profile_picture.objects.get(user=user)
-        context = {'profile_picture': profile_picture}
-    except Profile_picture.DoesNotExist:
-        context = {'no_profile_picture': True}
-    return render(request,'navbar.html',context)
+
 
 
 def chatbot(request):
@@ -434,3 +420,105 @@ def save_response(request):
         return JsonResponse({'success': True})
     else:
         return JsonResponse({'error': 'Invalid request method or parameters'})
+    
+def admin_notification(request):
+    return render(request,'admin_notification.html')
+    
+
+def education_form_view(request):
+    from .flows import EducationFlow 
+    if request.method == 'POST':
+        form = EducationForm(request.POST)
+        if form.is_valid():
+            education_instance = form.save(commit=False)
+            education_instance.user = request.user
+            education_instance.save()
+
+            total_fields = len(form.fields)
+            filled_fields = sum(1 for field in form.cleaned_data.values() if field is not None)
+            filled_percentage = (filled_fields / total_fields) * 100
+
+            if filled_percentage < 70:
+                send_email_to_admin(request, filled_percentage,education_instance)
+                messages.warning(request, 'Please fill at least 70% of the details to proceed.')
+                return redirect('admin_notification')
+
+            try:
+                flow_instance = EducationFlow.start(
+                    request=request,
+                    user=request.user,
+                    process_instance=education_instance
+                )
+                messages.success(request, 'Education flow started successfully.')
+                return redirect('home')
+            except Exception as e:
+                messages.error(request, f"An error occurred: {str(e)}")
+                return redirect('login')
+
+        else:
+            messages.error(request, 'Failed to save education details. Please check the form.')
+    else:
+        form = EducationForm()
+    return render(request, 'education_form.html', {'form': form})
+
+
+def send_email_to_admin(request, filled_percentage, education_instance):
+    subject = 'Education Form Alert'
+    message = f'Please review the submitted education form. Filled percentage: {filled_percentage}%\n\n'
+    message += f'Click the link below to review:\n{request.build_absolute_uri(reverse("make_decision", kwargs={"education_id": education_instance.id}))}'
+    from_email = settings.EMAIL_HOST_USER
+    to_email = 'ayushijain.jain12345@gmail.com'  # Replace with admin's email address
+    send_mail(subject, message, from_email, [to_email])
+
+
+
+class MakeDecisionView(View):
+    template_name = 'make_decision.html'
+
+    def get(self, request, *args, **kwargs):
+        education_id = kwargs.get('education_id')
+        education_instance = Education.objects.get(pk=education_id)
+        return render(request, self.template_name, {'education_instance': education_instance})
+
+    def post(self, request, *args, **kwargs):
+        education_id = kwargs.get('education_id')
+        education_instance = Education.objects.get(pk=education_id)
+
+        decision = request.POST.get('decision')
+        if decision == 'approve':
+            education_instance.approved = True
+            send_email_to_user(education_instance.user.email,request, approved=True)
+            messages.success(request, 'Education form approved successfully.')
+        elif decision == 'reject':
+            education_instance.approved = False
+            send_email_to_user(education_instance.user.email, request,approved=False)
+            messages.success(request, 'Education form rejected successfully.')
+        else:
+            pass
+
+        education_instance.save()
+
+        return redirect('home')
+
+
+def send_email_to_user(user_email, request, approved=True):
+    subject = 'Education Form Status Update'
+    if approved:
+        message = 'Your education form has been approved.'
+        redirect_link = reverse('home')
+    else:
+        message = 'Your education form has been rejected. Please sign up again.'
+        redirect_link = reverse('signup')
+
+    absolute_redirect_link = request.build_absolute_uri(redirect_link)
+
+    message += f'\n\nClick here to {absolute_redirect_link}'
+
+    from_email = settings.EMAIL_HOST_USER
+    # to_email = 'aayushi.jain@intelliatech.com'
+    to_email = user_email
+    
+
+    send_mail(subject, message, from_email, [to_email])
+
+

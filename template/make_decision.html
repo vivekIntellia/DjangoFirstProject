@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Decision</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS styles */
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .education-details {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Make Decision</h1>
+        <div class="education-details">
+            <h2>Educational details for {{ education_instance.user.username }}:</h2>
+            <!-- Display education details here -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Class 10</h5>
+                    <p class="card-text">School Name: {{ education_instance.class_10_school_name }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.class_10_board_or_university }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.class_10_year_of_passing }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.class_10_grade_or_cgpa }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.class_10_percentage }}</p>
+
+
+
+
+                    <!-- Add other class 10 details as needed -->
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Class 12</h5>
+                    <p class="card-text">School Name: {{ education_instance.class_12_school_name }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.class_12_board_or_university }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.class_12_year_of_passing }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.class_12_grade_or_cgpa }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.class_12_percentage}}</p>
+
+                    <!-- Add other class 12 details as needed -->
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Graduation</h5>
+                    <p class="card-text">College Name: {{ education_instance.graduation_college_name }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.graduation_board_or_university }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.graduation_year_of_passing }}</p>
+                    <p class="card-text">Board or University: {{ education_instance.graduation_grade_or_cgpa}}</p>
+                    <p class="card-text">Board or University: {{ education_instance.graduation_percentage}}</p>
+
+                    <!-- Add other graduation details as needed -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Decision buttons -->
+        <form method="post" class="decision-form">
+            {% csrf_token %}
+            <input type="hidden" name="decision" value="approve">
+            <button type="submit" class="btn btn-success">Approve</button>
+        </form>
+        <br>
+
+        <form method="post" class="decision-form">
+            {% csrf_token %}
+            <input type="hidden" name="decision" value="reject">
+            <button type="submit" class="btn btn-danger">Reject</button>
+        </form>
+    </div>
+</body>
+</html>
