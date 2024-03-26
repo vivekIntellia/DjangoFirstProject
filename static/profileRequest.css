@@ -1,0 +1,191 @@
+*,
+*:before,
+*:after{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+.bg-img {
+    /* background-image: url(https://images.pexels.com/photos/733852/pexels-photo-733852.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1); */
+    /* background-image: url(https://wallpaperaccess.com/full/1434762.jpg); */
+    background-image: repeating-linear-gradient(45deg, var(--bs-highlight-bg), transparent 100px);
+    background-color: crimson;
+    height: 120vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    animation: fRight 10s ease-out infinite;
+  }
+  .bg-img:after {
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+form{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 999;
+    text-align: center;
+    padding: 60px 32px;
+    width: 750px;
+    height: 950px;
+    border-radius: 50px;
+    /* border-style: solid;
+    border-color: rgb(56 5 243 / 34%); */
+    background-color: #f3030317;
+    transform: translate(-50%, -50%);
+    box-shadow: -1px 2px 20px 0px rgba(0, 0, 0, 0.75);
+    background-image: repeating-linear-gradient(45deg, var(--bs-gray-500), #00000008 100px);
+    animation: fLeft 10s ease-in-out infinite;
+}
+
+
+form *{
+    font-family: Inter, sans-serif;
+    color: blanchedalmond;
+    letter-spacing: 0.5px;
+    outline: none;
+    border: none;
+}
+form h3{
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 42px;
+    text-align: center;
+}
+
+label{
+    display: block;
+    margin-top: 30px;
+    font-size: 20px;
+    font-weight: 500;
+    text-align: center;
+}
+input{
+    display: block;
+    height: 40px;
+    width: 100%;
+    background: rgb(245 0 191 / 6%);
+    border-radius: 3px;
+    padding: 0 10px;
+    margin-top: 2px;
+    font-size: 14px;
+    font-weight: 300;
+}
+::placeholder{
+    color: #e5e5e5;
+}
+
+input[type="text"]{
+    font-size: 18px;
+}
+
+button{
+    margin-top: 14px;
+    width: 100%;
+    color: #080710;
+    padding: 15px 0;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    background-image: repeating-linear-gradient(45deg, black, transparent 100px);
+    background-color: crimson;
+    animation: fRight 10s ease-in-out infinite;
+}
+
+.accept_button {
+    border-radius: 20px;
+}
+
+.reject_button{
+    border-radius: 20px;
+}
+
+h1{
+    font-size: 48px;
+    font-weight: 500;
+}
+p{
+    font-size: 20px;
+    font-size: 700;
+}
+.button-container {
+    display: flex;
+    justify-content: space-between; 
+}
+
+.button-container button {
+    flex: 1;
+    margin-right: 10px; 
+}
+
+@keyframes fRight {
+    10% {
+      background-color: aqua;
+    }
+    20% {
+      background-color: brown;
+    }
+    30% {
+        background-color: chocolate;
+      }
+    40% {
+        background-color: crimson;
+    }
+    50% {
+        background-color: coral;
+      }
+    60% {
+        background-color: blueviolet;
+    }
+    70% {
+        background-color: aquamarine;
+      }
+    80% {
+        background-color: blue;
+    }
+    90% {
+        background-color: burlywood;
+      }
+    100% {
+        background-color: green;
+      }
+  }
+
+  @keyframes fLeft {
+    10% {
+      background-color: brown;
+    }
+    20% {
+      background-color: aqua;
+    }
+    30% {
+        background-color:  crimson;
+      }
+    40% {
+        background-color: chocolate;
+    }
+    50% {
+        background-color:  blueviolet;
+      }
+    60% {
+        background-color: coral;
+    }
+    70% {
+        background-color:  blue;
+      }
+    80% {
+        background-color: aquamarine;
+    }
+    90% {
+        background-color:  green;
+      }
+    100% {
+        background-color: burlywood;
+      }
+  }

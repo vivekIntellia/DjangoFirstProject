@@ -1,17 +1,36 @@
 .dot {
-  height: 225px;
-  width: 225px;
-  background-color: #bbb;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: -61px;
-  margin-left: 22px;
-  margin-bottom: -150px;
-  overflow: hidden;
-}
-
-  .circle-image {
-    width: 100%;
-    height: 223px;          
-}
-
+    height: 247px;
+    width: 250px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: -61px;
+    margin-left: 22px;
+    margin-bottom: -150px;
+    overflow: hidden;
+  }
+  
+  .dot_class_image{
+    /* position: absolute; */
+      background-size: cover;
+      width: 250px;
+      height: 254px;
+      overflow: hidden;
+      background-image: url('https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1711433094~exp=1711433694~hmac=60013a6349070f28cd91df6ea950928a10f132878717986b591314258069b056')
+  }
+    .circle-image {
+      width: 100%;
+      height: 223px;          
+  }
+  
+  .upload_image_button{
+    position: absolute;
+    height: 23px;
+    width: 107px;
+    background-color: palegoldenrod;
+    margin-left: 74px;
+    border-radius: 20px;
+    bottom: -135px;
+  }
+  
+  

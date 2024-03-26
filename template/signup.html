@@ -37,6 +37,21 @@
     </div>
     {% endif %}
 
+    {% if username_exist_error %}
+    <div id="error-message" class="alert alert-danger" role="alert" style="position: absolute;
+        transform: translate(-50%,-50%);
+        top: 5%;
+        left: 50%;
+        font-size: 20px;
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        border: 2px solid rgba(255,255,255,0.1);
+        box-shadow: 0 0 40px rgba(8,7,16,0.6);
+        padding: 20px 85px;">
+        Username already exists. Please choose a different username.
+    </div>
+    {% endif %}
+
     {% if error1 %}
     <div id="error-message" class="alert alert-danger" role="alert" style="position: absolute;
         transform: translate(-50%,-50%);
@@ -55,22 +70,66 @@
     <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <h3>Signup Here</h3>
-        {% comment %} <div class="mb-3">
+        <!-- <div class="mb-3">
             <label for="formFile" class="form-label">Upload Image</label>
             <input class="form-control" type="file" name="profile_picture" id="formFile" accept=".jpg, .jpeg, .png">
-        </div> {% endcomment %}
+        </div> 
+        <label for="username">Username</label>
+        <input type="text" placeholder="Username" name="username" id="username">  -->
+
+        <label for="First Name">First Name</label>
+        <input type="text" placeholder="First Name" name="fname" id="fname">
+
+        <label for="Last Name">Last Name</label>
+        <input type="text" placeholder="Last Name" name="lname" id="lname">
+
         <label for="username">Username</label>
         <input type="text" placeholder="Username" name="username" id="username">
 
+        <!-- <legend name="gender"></legend> -->
+        <fieldset>
+            <legend>Choose your gender:</legend>
+           <div> <input type="radio" name="gender" value="male" id="male"> </div>
+            <label for="male">Male</label>
+            <input type="radio" name="gender" value="female" id="female">
+            <label for="female">Female</label>
+        </fieldset>
+    
+        <!-- <label for="male">Male</label>
+        <input type="radio" name="gender" id="male" value="male" checked>
+        <label for="female" id="female_label">Female</label> 
+        <input type="radio" name="gender" id="female" value="female"> -->
+
         <label for="email">Email</label>
-        <input type="email" placeholder="Email" name="email" id="email">
+        <input type="email" placeholder="Email" name="email" id="email" required>
+
+        <label for="phone">Phone Number</label>
+        <input type="text" placeholder="Phone Number" name="phone" id="phone">
+
+        <label for="adress">Address</label>
+        <input type="text" placeholder="Address" name="address" id="adress">
+
+        <label for="zip">Zip Code</label>
+        <input type="number" placeholder="Zip" name="zip" id="zip">
+
+        <label for="city">City</label>
+        <input type="text" placeholder="City" name="city" id="city">
+
+        <label for="state">State</label>
+        <input type="text" placeholder="State" name="state" id="state">
+
+        <label for="country">Country</label>
+        <input type="text" placeholder="Country" name="country" id="country">
 
         <label for="password1">Password</label>
         <input type="password" placeholder="Password" id="password1" name="password1">
 
-
         <label for="password2">Confirm Password</label>
         <input type="password" placeholder="Confirm Password" id="password2" name="password2">
+
+        <label for="description">Description About Your Academics</label>
+        <textarea name="description" id="description" cols="50" rows="15" maxlength="400"
+            style="border: 10px; border-color: black; background-color: #0000001a;"></textarea>
         <div class="buttons">
             <button type="submit" class="btn-one">Create an account</button>
             <!-- <button type="submit">Signup</button> -->

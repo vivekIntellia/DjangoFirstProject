@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'viewflow',
+    # 'viewflow.site',
+    'viewflow.workflow',
     'services',
     'firstapp',
     'rest_framework',
@@ -65,6 +68,8 @@ MIDDLEWARE = [
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'firstapp.middleware.RequestApprovalMiddleware',
+    'firstapp.middleware.ProfileRequestApprovalMiddleware',
+    # 'firstapp.middleware.ProfileCompletionMiddleware'
 ]
 
 ROOT_URLCONF = 'newproject.urls'

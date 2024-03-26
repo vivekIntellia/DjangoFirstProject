@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Request Rejected</title>
+    <title>Incomplete Profile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
@@ -15,12 +15,12 @@
     <h1 class="w3-jumbo w3-animate-top w3-center"><code>Access Denied</code></h1>
     <hr class="w3-border-white w3-animate-left">
     {% comment %} <h3 class="w3-center w3-animate-right">You don't have permission to view this site because {{ note }}.</h3> {% endcomment %}
-    <h3 class="w3-center w3-animate-right">You don't have permission to view this site as your profile is not completed.</h3>
+    <h3 class="w3-center w3-animate-right">You don't have permission to view this site as your profile is not completed. Wait for the approval of your profile</h3>
     <h3 class="w3-center w3-animate-zoom">🚫🚫🚫🚫</h3>
     <h6 class="w3-center w3-animate-zoom">error code:403 forbidden</h6>
-    <div class="button-container"><a
+    {% comment %} <div class="button-container"><a
         href="{% url 'signup' %}"><button name="signup_after_rejection" class="button-1 ">Signup</button></a>
-    </div>
+    </div> {% endcomment %}
 </form>
 </div>
 </body>

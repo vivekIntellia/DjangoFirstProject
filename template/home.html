@@ -10,7 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.1.4/tailwind.min.css'>
   <link href='/static/index.js'>
-  <link rel="stylesheet" href="/static/home.css">
+  <!-- {% comment %} <link rel="stylesheet" href="/static/home.css"> {% endcomment %} -->
+  <link rel="stylesheet" href="/static/Home.css">
 </head>
 
 <body class="antialiased font-sans">
@@ -55,12 +56,14 @@
           <div>
               <span class="dot">
                 {% if profile_picture %}
-                <img src="{{ profile_picture.profile_picture.url }}" class="w3-circle circle-image" alt="Profile Picture">
+                <img src="{{ profile_picture.profile_picture.url}}" class="w3-circle dot_class_image">
               {% else %}
                 <p>No profile picture uploaded yet.</p>
               {% endif %}
+              <button class="btn btn-primary upload_image_button">
               <a href="{% url 'upload_profile_image' %}" class="btn btn-primary mt-2 w3-circle circle-image">Upload Image</a>
-              </span>
+              </button>
+            </span>
             </form>
           </div>
         </div>
