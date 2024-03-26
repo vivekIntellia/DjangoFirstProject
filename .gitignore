@@ -1,0 +1,4 @@
+*.pyc
+
+# Ignore virtual environment directory
+venv/

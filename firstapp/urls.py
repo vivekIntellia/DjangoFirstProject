@@ -27,6 +27,9 @@ site = Site(title="ACME Corp", viewsets=[
     ),
 ])
 
+from .views import education_form_view, MakeDecisionView
+
+
 urlpatterns = [
     # path('flows/', include('viewsite.urls')),
     # path('admin/', admin.site.urls),
@@ -64,7 +67,6 @@ urlpatterns = [
     path('upload_profile_image/',views.upload_profile_image, name='upload_profile_image'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('display_services/',views.display_services,name='display_services'),
-    path('navbar/',views.navbar,name='navbar'),
     path('chatbot/save_response', views.save_response, name='save_response'),
     path('chatbot/',views.chatbot,name='chatbot'),
     path('passwordchange/',auth_views.PasswordChangeView.as_view(template_name='passwordchange.html', form_class=MyPasswordchangeField, success_url='/passwordchangedone/'),name='passwordchange'),
@@ -73,9 +75,11 @@ urlpatterns = [
     path('password-reset_done/',auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'),name='password_reset_done'),
     path('password-reset_confirm/<uidb64>/<token>',auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html',form_class=MySetPasswordForm),name='password_reset_confirm'),
     path('password-reset_complete/',auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'),name='password_reset_complete'),
+    path('fill_education/',education_form_view, name='fill_education'), 
+    path('admin_notification/',views.admin_notification,name='admin_notification'),
+    path('make_decision/<int:education_id>/', MakeDecisionView.as_view(), name='make_decision'),
     # path('workflow/', include('viewflow.urls')),
     # path('display_profile_picture/', views.display_profile_picture, name='display_profile_picture'),
-]
 
 # urlpatterns = patterns(
 #     '',

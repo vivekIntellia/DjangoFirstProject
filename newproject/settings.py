@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'viewflow',
     # 'viewflow.site',
+    # 'viewflow.siteservices',
+    'viewflow.frontend',
     'viewflow.workflow',
     'services',
     'firstapp',
@@ -53,6 +55,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     # 'allauth_twillio',
     'social_django',
+
 ]
 
 LOGIN_URL = '/accounts/login/'
@@ -100,7 +103,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mysql_db',
         'USER': 'root',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'root',
         'HOST': 'localhost', 
         'PORT': '3306',       
     }
