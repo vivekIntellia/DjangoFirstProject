@@ -56,9 +56,9 @@
           <div>
               <span class="dot">
                 {% if profile_picture %}
-                <img src="{{ profile_picture.profile_picture.url}}" class="w3-circle dot_class_image">
-              {% else %}
-                <p>No profile picture uploaded yet.</p>
+                <img id="profile_image" src="{{ profile_picture.profile_picture.url}}" class="w3-circle dot_class_image">
+                {% else %}
+                <img id="profile_image" src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1711433094~exp=1711433694~hmac=60013a6349070f28cd91df6ea950928a10f132878717986b591314258069b056" class="w3-circle dot_class_image">
               {% endif %}
               <button class="btn btn-primary upload_image_button">
               <a href="{% url 'upload_profile_image' %}" class="btn btn-primary mt-2 w3-circle circle-image">Upload Image</a>

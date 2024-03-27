@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import UserProfile, UserDetail,Profile_picture,UserResponse,SignUp,Education
+from .models import UserProfile, UserDetail,Profile_picture,UserResponse,SignUp,ServicesApi
 from django.contrib.auth.admin import UserAdmin 
 from django.contrib.auth.models import User
 
@@ -79,12 +80,17 @@ class SignUpAdmin(admin.ModelAdmin):
         return f"{obj.zip_code}"
     formatted_zip.short_description = 'Zip'
 
+@admin.register(ServicesApi)
+class ServicesApi(admin.ModelAdmin):
+    list_display = ['id', 'title', 'description', 'link']
 
 admin.site.register(Profile_picture)
 admin.site.register(UserResponse)
 admin.site.register(Education)
 admin.site.unregister(User)
 admin.site.register(User , CustomizedUserAdmin)
+
+# admin.site.register(SignUp)
 
 
 

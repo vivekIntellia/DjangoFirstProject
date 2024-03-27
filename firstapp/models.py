@@ -78,13 +78,16 @@ class Profile_picture(models.Model):
 
     def __str__(self):
         return self.user.username
-    
-
 
 class UserResponse(models.Model):
     response_text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+class ServicesApi(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    link = models.CharField(max_length=200)
 class Education(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     

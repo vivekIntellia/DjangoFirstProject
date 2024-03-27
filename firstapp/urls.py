@@ -18,6 +18,7 @@ from .flows import SignupFlow
 from .views import SignupPage
 from firstapp import views
 from viewflow import views as vf_views
+from .views import education_form_view, MakeDecisionView
 
 site = Site(title="ACME Corp", viewsets=[
     Application(
@@ -27,7 +28,7 @@ site = Site(title="ACME Corp", viewsets=[
     ),
 ])
 
-from .views import education_form_view, MakeDecisionView
+
 
 
 urlpatterns = [
@@ -43,8 +44,8 @@ urlpatterns = [
     path('CompleteProfile/', views.CompleteProfile, name='CompleteProfile'),
     path('profileApproval/', views.profileApproval, name='profileApproval'),
     path('profileRejected/', views.profileRejected, name='profileRejected'),
-    path('', views.SignupPage, name='signup'),
-    path('signup/', views.SignupPage, name='signup'),
+    # path('', views.SignupPage, name='signup'),
+    # path('signup/', views.SignupPage, name='signup'),
     path('login/', views.LoginPage, name='login'),
     path('home/', views.HomePage, name='home'),
     path('logout/', views.LogoutPage, name='logout'),
@@ -78,9 +79,14 @@ urlpatterns = [
     path('fill_education/',education_form_view, name='fill_education'), 
     path('admin_notification/',views.admin_notification,name='admin_notification'),
     path('make_decision/<int:education_id>/', MakeDecisionView.as_view(), name='make_decision'),
+    # path('services_api/', views.services_api_profile, name='services_api_profile'),
+    # path('services_api/<int:pk>/', views.services_api_detail_profile, name='services_api_detail_profile'),
+    path('services_profile/', views.services_profile, name='services_profile'),
+    path('services_detail_profile/<int:pk>/', views.services_detail_profile, name='services_detail_profile'),
+    
     # path('workflow/', include('viewflow.urls')),
     # path('display_profile_picture/', views.display_profile_picture, name='display_profile_picture'),
-
+]
 # urlpatterns = patterns(
 #     '',
 #     url(r'^flows/' , include(viewsite.urls)),

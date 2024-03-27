@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'viewflow',
     # 'viewflow.site',
     # 'viewflow.siteservices',
-    'viewflow.frontend',
+    # 'viewflow.frontend',
     'viewflow.workflow',
     'services',
     'firstapp',
@@ -103,7 +103,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mysql_db',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'admin',
         'HOST': 'localhost', 
         'PORT': '3306',       
     }

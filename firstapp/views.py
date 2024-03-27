@@ -5,14 +5,14 @@ from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from services.models import Services
-from .models import Profile_picture, UserDetail, UserProfile
+from .models import Profile_picture, UserDetail, UserProfile , ServicesApi
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.core.mail import send_mail
-from .models import UserResponse, SignUp, Process
+from .models import UserResponse, SignUp, Process 
 from django.views.generic import TemplateView
 import random
 import uuid
@@ -21,6 +21,9 @@ from django.contrib import messages
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
+from .serializers import ServicesSirealizer
 from . helper import send_otp_to_phone
 from .form import UserProfileForm
 from django.contrib import messages
@@ -34,9 +37,70 @@ from .form import UserProfileForm
 from .models import SignUp
 from django.views import generic
 from django.views import View
+from rest_framework import status
 # from .flows import SignUpFlow
-from viewflow.workflow.flow.views import CreateProcessView
+# from viewflow.workflow.flow.views import CreateProcessView
+# from .flows import EducationFlow 
+# from viewflow import views as flow_views
+# class SignUpStartView(View):
+#     def get(self, request, *args, **kwargs):
+#         return CreateProcessView.as_view(flow_cls=SignUpFlow)(request, *args, **kwargs)
 
+
+# class CreateRequestView:
+#     model = SignUp
+#     # fields = ["user", "fname", "lname", "gender", "phone", "address", "zip_code", "city", "state", "country", "description", "approved"]
+
+#     def get_object(self, queryset=None):
+#         return super().get_object(queryset=queryset)
+
+
+# class ApproveRequestView:
+#     model = SignUp
+#     # fields = ["approve"]
+
+#     def get_object(self, queryset=None):
+#         return super().get_object(queryset=queryset)
+
+
+# class SignUpStartView(View):
+#     def get(self, request, *args, **kwargs):
+#         # Your view logic goes here
+#         return render(
+#             request, "signup.html", context={"message": "Welcome to the sign-up page!"}
+#         )
+
+def education_form_view(request):
+    from .flows import EducationFlow 
+    if request.method == 'POST':
+        form = EducationForm(request.POST,request.FILES)
+        if form.is_valid():
+            education_instance = form.save(commit=False)
+            education_instance.user = request.user
+            education_instance.save()
+
+            total_fields = len(form.fields)
+            filled_fields = sum(1 for field in form.cleaned_data.values() if field is not None)
+            filled_percentage = (filled_fields / total_fields) * 100
+
+            if filled_percentage < 70:
+                send_email_to_admin(request, filled_percentage,education_instance)
+                messages.warning(request, f'Please fill at least 70% of the details to proceed.')
+                return redirect('admin_notification')
+
+            try:
+                messages.success(request, 'Education flow started successfully.')
+                return redirect('home')
+            except Exception as e:
+                messages.error(request, f"An error occurred: {str(e)}")
+                print({str(e)})
+                return redirect('login')
+
+        else:
+            messages.error(request, 'Failed to save education details. Please check the form.')
+    else:
+        form = EducationForm(request.POST,request.FILES)
+    return render(request, 'education_form.html', {'form': form})
 
 @login_required(login_url="login")
 def HomePage(request):
@@ -130,7 +194,7 @@ def SignupPage(request):
                     )  # Exclude password2
                 request.session["filled_fields_count"] = filled_fields_count
                 if filled_fields_count <= 10:
-                        send_email_to_admin(request)
+                        send_admin_email(request)
                         return redirect('CompleteProfile')
                 else:
                         verification_token = str(uuid.uuid4())
@@ -152,7 +216,7 @@ def SignupPage(request):
 
     return render(request, 'signup.html', {'username_exist_error' : username_exist_error , 'error': error, 'error1': error1})
 
-def send_email_to_admin(request):
+def send_admin_email(request):
     email = request.session.get("signup_email")
     username = request.session.get("username")
     admin_email = "vivekyadav2750@gmail.com"
@@ -463,7 +527,7 @@ def LoginPage(request):
 
 def LogoutPage(request):
     logout(request)
-    return redirect("login")
+    return render(request , "login.html")
 
 
 @login_required(login_url="login")
@@ -574,6 +638,28 @@ def thankyou(request):
 
 
 
+# def upload_profile_image(request):
+#     user = request.user
+#     try:
+#         # Attempt to retrieve the user's existing profile picture
+#         profile_picture = Profile_picture.objects.get(user=user)
+#     except Profile_picture.DoesNotExist:
+#         profile_picture = None
+#     if request.method == "POST":
+#         form23 = UserProfileForm(
+#             request.POST, request.FILES, instance=existing_profile_picture
+#         )
+#         if form23.is_valid():
+#             profile_picture = form23.save(commit=False)
+#             profile_picture.user = user
+#             profile_picture.save()
+#             # print(profile_picture.profile_picture.url)
+#             return redirect("home")
+#     else:
+#         # If the request method is GET, initialize the form with existing profile picture data if available
+#         form = UserProfileForm(instance=profile_picture)
+#     return render(request, "upload_profile_image.html", {"form23": form23})
+
 def upload_profile_image(request):
     user = request.user
     try:
@@ -581,20 +667,23 @@ def upload_profile_image(request):
         profile_picture = Profile_picture.objects.get(user=user)
     except Profile_picture.DoesNotExist:
         profile_picture = None
-    if request.method == "POST":
-        form23 = UserProfileForm(
-            request.POST, request.FILES, instance=existing_profile_picture
-        )
-        if form23.is_valid():
-            profile_picture = form23.save(commit=False)
+
+    if request.method == 'POST':
+        # If the form is submitted via POST, process the form data
+        form = UserProfileForm(request.POST, request.FILES, instance=profile_picture)
+        if form.is_valid():
+            # Save the form data to the database
+            profile_picture = form.save(commit=False)
             profile_picture.user = user
             profile_picture.save()
-            # print(profile_picture.profile_picture.url)
-            return redirect("home")
+            # Redirect to the home page or any other desired page after successful upload
+            return redirect('home')
     else:
         # If the request method is GET, initialize the form with existing profile picture data if available
         form = UserProfileForm(instance=profile_picture)
-    return render(request, "upload_profile_image.html", {"form23": form23})
+
+    # Render the upload_profile_image.html template with the form
+    return render(request, 'upload_profile_image.html', {'form': form})
 
 def display_services(request):
     servicedata = Services.objects.all()
@@ -629,45 +718,50 @@ def save_response(request):
         return JsonResponse({"success": True})
     else:
         return JsonResponse({'error': 'Invalid request method or parameters'})
+
+@api_view(['GET' , 'POST'])
+def services_profile(request):
+    if request.method == 'GET':
+        services_api = Services.objects.all()
+        serializer = ServicesSirealizer(services_api , many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        serializer = ServicesSirealizer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+@api_view(['GET' , 'PUT' , 'DELETE'])
+def services_detail_profile(request , pk):
+    if request.method == 'GET':
+        try:
+            services_api = Services.objects.get(pk=pk)
+        except:
+            return Response({'Error' : 'Service not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ServicesSirealizer(services_api)
+        return Response(serializer.data)
+
+    if request.method == 'PUT':
+        services_api = Services.objects.get(pk=pk)
+        serializer = ServicesSirealizer(services_api , data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+    if request.method == 'DELETE':
+        services_api = Services.objects.get(pk=pk)
+        services_api.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 def admin_notification(request):
     return render(request,'admin_notification.html')
     
-def education_form_view(request):
-    from .flows import EducationFlow 
-    if request.method == 'POST':
-        form = EducationForm(request.POST)
-        if form.is_valid():
-            education_instance = form.save(commit=False)
-            education_instance.user = request.user
-            education_instance.save()
 
-            total_fields = len(form.fields)
-            filled_fields = sum(1 for field in form.cleaned_data.values() if field is not None)
-            filled_percentage = (filled_fields / total_fields) * 100
-
-            if filled_percentage < 70:
-                send_email_to_admin(request, filled_percentage,education_instance)
-                messages.warning(request, 'Please fill at least 70% of the details to proceed.')
-                return redirect('admin_notification')
-
-            try:
-                flow_instance = EducationFlow.start(
-                    request=request,
-                    user=request.user,
-                    process_instance=education_instance
-                )
-                messages.success(request, 'Education flow started successfully.')
-                return redirect('home')
-            except Exception as e:
-                messages.error(request, f"An error occurred: {str(e)}")
-                return redirect('login')
-
-        else:
-            messages.error(request, 'Failed to save education details. Please check the form.')
-    else:
-        form = EducationForm()
-    return render(request, 'education_form.html', {'form': form})
 
 
 def send_email_to_admin(request, filled_percentage, education_instance):
@@ -675,7 +769,7 @@ def send_email_to_admin(request, filled_percentage, education_instance):
     message = f'Please review the submitted education form. Filled percentage: {filled_percentage}%\n\n'
     message += f'Click the link below to review:\n{request.build_absolute_uri(reverse("make_decision", kwargs={"education_id": education_instance.id}))}'
     from_email = settings.EMAIL_HOST_USER
-    to_email = 'ayushijain.jain12345@gmail.com'  # Replace with admin's email address
+    to_email = 'vivekyadav2750@gmail.com'  # Replace with admin's email address
     send_mail(subject, message, from_email, [to_email])
 
 
@@ -726,5 +820,5 @@ def send_email_to_user(user_email, request, approved=True):
     # to_email = 'aayushi.jain@intelliatech.com'
     to_email = user_email
     send_mail(subject, message, from_email, [to_email])
-        return JsonResponse({"error": "Invalid request method or parameters"})
+    return JsonResponse({"error": "Invalid request method or parameters"})
 

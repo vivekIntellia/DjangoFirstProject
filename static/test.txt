@@ -4,5 +4,8 @@ class UserDetail(models.Model):
     state_experience = models.IntegerField()
     national_experience = models.IntegerField()
     international_experience = models.IntegerField()
-
-   
+{
+        "service_icon": "India hockey",
+        "service_title": "India men's national hockey team",
+        "service_des": ""
+    }

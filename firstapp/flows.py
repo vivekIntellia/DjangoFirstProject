@@ -1,6 +1,6 @@
-from viewflow import flow
-from viewflow.base import Flow, this
-from viewflow.flow.views import CreateProcessView
+from viewflow.workflow import flow
+# from viewflow import Flow, this
+from viewflow.workflow.flow.views import CreateProcessView
 from .models import Education
 from .forms import ReviewEducationForm  # Import the form needed for the flow
 from .views import MakeDecisionView  # Import the view needed for the flow
@@ -21,7 +21,7 @@ class SignupFlow(flow.Flow):
 
     redirect_to_complete_profile = flow.Handle(this.redirect_to_complete_profile_logic).Next(this.admin_email)
 
-    admin_email = flow.Handle(this.send_email_to_admin).Next(this.end)
+    admin_email = flow.Handle(this.send_admin_email).Next(this.end)
 
     end = flow.End()
 
@@ -33,7 +33,7 @@ def redirect_to_complete_profile_logic(activation):
     print("Inside redirect_to_complete_profile_logic")
     return redirect('CompleteProfile')
 
-def send_email_to_admin(activation):
+def send_admin_email(activation):
     print("Inside send_email_to_admin")
     user = activation.process.user
     email = user.email
@@ -48,7 +48,7 @@ def send_email_to_admin(activation):
     )
 
     
-class EducationFlow(Flow):
+class EducationFlow(flow.Flow):
     process_class = Education
 
     start = flow.Start(
