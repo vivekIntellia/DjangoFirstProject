@@ -70,37 +70,7 @@ from rest_framework import status
 #             request, "signup.html", context={"message": "Welcome to the sign-up page!"}
 #         )
 
-def education_form_view(request):
-    from .flows import EducationFlow 
-    if request.method == 'POST':
-        form = EducationForm(request.POST,request.FILES)
-        if form.is_valid():
-            education_instance = form.save(commit=False)
-            education_instance.user = request.user
-            education_instance.save()
 
-            total_fields = len(form.fields)
-            filled_fields = sum(1 for field in form.cleaned_data.values() if field is not None)
-            filled_percentage = (filled_fields / total_fields) * 100
-
-            if filled_percentage < 70:
-                send_email_to_admin(request, filled_percentage,education_instance)
-                messages.warning(request, f'Please fill at least 70% of the details to proceed.')
-                return redirect('admin_notification')
-
-            try:
-                messages.success(request, 'Education flow started successfully.')
-                return redirect('home')
-            except Exception as e:
-                messages.error(request, f"An error occurred: {str(e)}")
-                print({str(e)})
-                return redirect('login')
-
-        else:
-            messages.error(request, 'Failed to save education details. Please check the form.')
-    else:
-        form = EducationForm(request.POST,request.FILES)
-    return render(request, 'education_form.html', {'form': form})
 
 @login_required(login_url="login")
 def HomePage(request):
@@ -587,24 +557,7 @@ def download_csv(request, service_id):
     except Services.DoesNotExist:
         return HttpResponse("Service not found", status=404)
 
-# USE THIS CODE TO GENERATE ALL THE SERVICES IN EXCEL FILE <a href="{% url 'generate_excel' %}" class="learn-more">Download EXCEL</a> USE THIS URL AND USE THIS PATH path('generate-excel/', views.generate_excel, name='generate_excel'),
-# def generate_excel(request , service_id):
-#     services = Services.objects.gte(id=service_id)
-#     output = io.BytesIO()
-#     workbook = xlsxwriter.Workbook(output)
-#     worksheet = workbook.add_worksheet()
-#     headers = ['Service Title', 'Description', 'Icon']
-#     for col, header in enumerate(headers):
-#         worksheet.write(0, col, header)
-#     for row, service in enumerate(services, start=1):
-#         worksheet.write(row, 0, service.service_title)
-#         worksheet.write(row, 1, service.service_des)
-#         worksheet.write(row, 2, service.service_icon)
-#     workbook.close()
-#     response = HttpResponse(output.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-#     response['Content-Disposition'] = 'attachment; filename="services_report.xlsx"'
 
-#     return response
 
 def generate_excel(service_id):
     try:
@@ -636,29 +589,6 @@ def thankyou(request):
     return render(request, "thankyou.html")
 
 
-
-
-# def upload_profile_image(request):
-#     user = request.user
-#     try:
-#         # Attempt to retrieve the user's existing profile picture
-#         profile_picture = Profile_picture.objects.get(user=user)
-#     except Profile_picture.DoesNotExist:
-#         profile_picture = None
-#     if request.method == "POST":
-#         form23 = UserProfileForm(
-#             request.POST, request.FILES, instance=existing_profile_picture
-#         )
-#         if form23.is_valid():
-#             profile_picture = form23.save(commit=False)
-#             profile_picture.user = user
-#             profile_picture.save()
-#             # print(profile_picture.profile_picture.url)
-#             return redirect("home")
-#     else:
-#         # If the request method is GET, initialize the form with existing profile picture data if available
-#         form = UserProfileForm(instance=profile_picture)
-#     return render(request, "upload_profile_image.html", {"form23": form23})
 
 def upload_profile_image(request):
     user = request.user
@@ -762,14 +692,44 @@ def admin_notification(request):
     return render(request,'admin_notification.html')
     
 
+def education_form_view(request):
+    from .flows import EducationFlow 
+    if request.method == 'POST':
+        form = EducationForm(request.POST,request.FILES)
+        if form.is_valid():
+            education_instance = form.save(commit=False)
+            education_instance.user = request.user
+            education_instance.save()
 
+            total_fields = len(form.fields)
+            filled_fields = sum(1 for field in form.cleaned_data.values() if field is not None)
+            filled_percentage = (filled_fields / total_fields) * 100
+
+            if filled_percentage < 70:
+                send_email_to_admin(request, filled_percentage,education_instance)
+                messages.warning(request, f'Please fill at least 70% of the details to proceed.')
+                return redirect('admin_notification')
+
+            try:
+                messages.success(request, 'Education flow started successfully.')
+                return redirect('home')
+            except Exception as e:
+                messages.error(request, f"An error occurred: {str(e)}")
+                print({str(e)})
+                return redirect('login')
+
+        else:
+            messages.error(request, 'Failed to save education details. Please check the form.')
+    else:
+        form = EducationForm(request.POST,request.FILES)
+    return render(request, 'education_form.html', {'form': form})
 
 def send_email_to_admin(request, filled_percentage, education_instance):
     subject = 'Education Form Alert'
     message = f'Please review the submitted education form. Filled percentage: {filled_percentage}%\n\n'
     message += f'Click the link below to review:\n{request.build_absolute_uri(reverse("make_decision", kwargs={"education_id": education_instance.id}))}'
     from_email = settings.EMAIL_HOST_USER
-    to_email = 'vivekyadav2750@gmail.com'  # Replace with admin's email address
+    to_email = 'ayushijain.jain12345@gmail.com'  # Replace with admin's email address
     send_mail(subject, message, from_email, [to_email])
 
 
