@@ -1,0 +1,189 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch API Data in HTML Template</title>
+   
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+     
+        .card {
+            width: 100%;
+            max-width: 500px; 
+            margin-bottom: 20px;
+        }
+        .card-img-top {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="posts-list" class="container mt-5">
+      
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+           
+            $.ajax({
+                url: 'http://127.0.0.1:8000/api/viewlist/',
+                type: 'GET',
+                success: function(response) {
+                    
+                    var posts = response.payload;
+
+                  
+                    var postsList = $('#posts-list');
+                    $.each(posts, function(index, post) {
+                        var postItem = '<div class="card mb-3">';
+                        postItem += '<div class="card-body">';
+                        postItem += '<h2 class="card-title">' + post.title + '</h2>';
+                        postItem += '<img class="card-img-top" src="' + post.image + '" alt="Image">';
+                        postItem += '<p class="card-text"><strong>Content:</strong> ' + post.content + '</p>';
+                        postItem += '<p class="card-text"><strong>Description:</strong> ' + post.description + '</p>';
+                        postItem += '<p class="card-text"><strong>Category:</strong> ' + post.category + '</p>';
+                        postItem += '<p class="card-text"><strong>Date Posted:</strong> ' + post.date_posted + '</p>';
+                        postItem += '</div></div>';
+
+                        postsList.append(postItem);
+                    });
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
+ -->
+
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch API Data in HTML Template</title>
+   
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+     
+        .card {
+            width: 100%;
+            max-width: 500px; 
+            margin-bottom: 20px;
+        }
+        .card-img-top {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="posts-list" class="container mt-5">
+      
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Function to fetch posts
+            function fetchPosts() {
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/viewlist/',
+                    type: 'GET',
+                    success: function(response) {
+                        var posts = response.payload;
+                        var postsList = $('#posts-list');
+                        postsList.empty(); // Clear previous posts
+                        $.each(posts, function(index, post) {
+                            var postItem = '<div class="card mb-3">';
+                            postItem += '<div class="card-body">';
+                            postItem += '<h2 class="card-title">' + post.title + '</h2>';
+                            postItem += '<img class="card-img-top" src="' + post.image + '" alt="Image">';
+                            postItem += '<p class="card-text"><strong>Content:</strong> ' + post.content + '</p>';
+                            postItem += '<p class="card-text"><strong>Description:</strong> ' + post.description + '</p>';
+                            postItem += '<p class="card-text"><strong>Category:</strong> ' + post.category + '</p>';
+                            postItem += '<p class="card-text"><strong>Date Posted:</strong> ' + post.date_posted + '</p>';
+                            // Form to add comment
+                            postItem += '<form id="commentForm' + post.id + '" class="comment-form">';
+                            postItem += '<input type="text" id="commentInput' + post.id + '" class="form-control mb-2" placeholder="Add a comment">';
+                            postItem += '<button type="button" class="btn btn-primary btn-sm" onclick="addComment(' + post.id + ')">Post Comment</button>';
+                            postItem += '</form>';
+                            // Container for comments
+                            postItem += '<div id="commentsList' + post.id + '" class="comments-list mt-3"></div>';
+                            postItem += '</div></div>';
+                            postsList.append(postItem);
+                            fetchComments(post.id); // Fetch comments for this post
+                        });
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                    }
+                });
+            }
+            
+            // Function to fetch comments for a post
+            function fetchComments(postId) {
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/posts/' + postId + '/comments/',
+                    type: 'GET',
+                    success: function(response) {
+                        var comments = response;
+                        var commentsList = $('#commentsList' + postId);
+                        commentsList.empty(); // Clear previous comments
+                        $.each(comments, function(index, comment) {
+                            var commentItem = '<div class="comment">';
+                            commentItem += '<p>' + comment.author + ': ' + comment.content + '</p>';
+                            commentItem += '</div>';
+                            commentsList.append(commentItem);
+                        });
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                    }
+                });
+            }
+
+            // Function to add comment
+            window.addComment = function(postId) {
+                var commentInput = $('#commentInput' + postId);
+                var commentContent = commentInput.val();
+                if (commentContent.trim() === '') {
+                    alert('Please enter a comment');
+                    return;
+                }
+
+                $.ajax({
+                    url: 'http://127.0.0.1:8000/api/posts/' + postId + '/comments/',
+                    type: 'POST',
+                    data: {
+                        author: 'User', // Add the user's name here
+                        content: commentContent
+                    },
+                    success: function(response) {
+                        commentInput.val('');
+                        fetchComments(postId); // Fetch comments again to update the list
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                    }
+                });
+            };
+
+            // Fetch posts when the document is ready
+            fetchPosts();
+        });
+    </script>
+</body>
+</html>
+
